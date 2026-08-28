@@ -1,0 +1,40 @@
+# Ruff's genuine user-level config slot: ~/.config/ruff/ruff.toml on Linux,
+# %APPDATA%\ruff\ruff.toml on Windows. Used only when a project has no
+# pyproject.toml / ruff.toml of its own.
+
+line-length = 80
+
+# NOTE: 2 spaces is what you asked for globally, but be aware that Google's
+# Python style guide says 4 (matching PEP 8) even though its C++/TS/Java guides
+# say 2. Flip this to 4 if the divergence from every library you read starts to
+# grate — it is a one-character change.
+indent-width = 2
+
+target-version = "py312"
+
+[lint]
+select = [
+  "E",   # pycodestyle errors
+  "W",   # pycodestyle warnings
+  "F",   # pyflakes
+  "I",   # isort — import sorting
+  "B",   # flake8-bugbear
+  "C4",  # flake8-comprehensions
+  "UP",  # pyupgrade
+  "SIM", # flake8-simplify
+  "RUF", # ruff-specific
+]
+ignore = [
+  "E501", # line-too-long — the formatter owns width, the linter shouldn't nag
+]
+
+[lint.pydocstyle]
+convention = "google"
+
+[format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "lf"
+docstring-code-format = true      # format code inside docstrings too
+docstring-code-line-length = 72

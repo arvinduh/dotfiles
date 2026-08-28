@@ -1,0 +1,20 @@
+# Google C++ style, verbatim, with the 2-space/80-col rules made explicit so
+# they are visible rather than implied by BasedOnStyle.
+---
+BasedOnStyle: Google
+IndentWidth: 2
+TabWidth: 2
+UseTab: Never
+ColumnLimit: 80
+ReflowComments: true          # this is the "autowrap" for comments
+DerivePointerAlignment: false # Google's default derives from the file; pin it
+PointerAlignment: Left        # int* p, not int *p
+SortIncludes: CaseSensitive
+IncludeBlocks: Regroup
+AllowShortFunctionsOnASingleLine: Inline
+SeparateDefinitionBlocks: Always
+InsertNewlineAtEOF: true
+---
+Language: Proto
+BasedOnStyle: Google
+ColumnLimit: 80

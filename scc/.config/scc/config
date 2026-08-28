@@ -1,0 +1,16 @@
+# scc defaults. One command-line flag per line; `#` comments and blanks are
+# ignored. Found via SCC_CONFIG_PATH, set in .zshenv.
+#
+# Precedence: this file < ./.sccconfig in a project < flags you type.
+
+# COCOMO estimates a 1981 waterfall project's cost from line count alone, at an
+# assumed $56,286 salary. It is calibrated on FORTRAN and COBOL, counts config
+# and comments as engineering, and tells you nothing actionable. Off.
+--no-cocomo
+
+# Worth typing ad hoc rather than setting here:
+#   --by-file        per-file breakdown instead of the per-language summary
+#   --no-gen         skip generated files (lazy-lock.json and friends)
+#   -a               DRYness: how much of the code is duplicated
+#   --cognitive      nesting-weighted complexity, harsher than the default
+#   -f json -o x     machine-readable output

@@ -1,0 +1,9 @@
+# Lua formatting (your Neovim config). stylua finds this via
+# --search-parent-directories, which conform.nvim passes automatically.
+column_width = 80
+line_endings = "Unix"
+indent_type = "Spaces"
+indent_width = 2
+quote_style = "AutoPreferDouble"
+call_parentheses = "Always"
+collapse_simple_statement = "Never"

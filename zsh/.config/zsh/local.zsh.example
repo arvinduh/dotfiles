@@ -1,0 +1,9 @@
+# ~/.config/zsh/local.zsh — per-machine overrides. NOT tracked by git.
+#
+# install.sh copies this file into place if local.zsh does not already exist.
+# Put anything host-specific or secret here: work proxies, API tokens,
+# one-off PATH entries, aliases you only want on this box.
+
+# export ANTHROPIC_API_KEY="..."
+# path=("$HOME/work/bin" $path)
+# alias vpn="sudo openconnect ..."

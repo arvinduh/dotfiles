@@ -1,0 +1,10 @@
+# TOML formatting. Parent-directory search makes this the global fallback.
+[formatting]
+indent_string = "  "
+column_width = 80
+align_entries = false
+align_comments = true
+array_trailing_comma = true
+array_auto_expand = true
+compact_arrays = true
+reorder_keys = false

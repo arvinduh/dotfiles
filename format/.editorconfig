@@ -1,0 +1,39 @@
+# ~/.editorconfig — the universal baseline.
+#
+# Read natively by Neovim 0.9+, shfmt, Biome and Prettier 3. Any project with
+# its own .editorconfig wins automatically (root=true stops the upward search),
+# so this only governs code that has no opinion of its own.
+
+root = true
+
+[*]
+indent_style = space
+indent_size = 2
+tab_width = 2
+max_line_length = 80
+end_of_line = lf
+charset = utf-8
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# Go is not configurable. gofmt emits tabs and ignores line length; fighting it
+# breaks go vet, gopls and every upstream diff. This is the one exception.
+[*.go]
+indent_style = tab
+indent_size = 4
+max_line_length = unset
+
+# Markdown: two trailing spaces are a hard line break, so they cannot be
+# stripped. Prettier's proseWrap handles the wrapping instead.
+[*.md]
+trim_trailing_whitespace = false
+
+# Makefiles require literal tabs.
+[{Makefile,makefile,*.mk}]
+indent_style = tab
+
+# Generated / vendored — leave alone.
+[{**/node_modules/**,**/.venv/**,**/target/**,*.lock,*.min.*}]
+indent_style = unset
+indent_size = unset
+max_line_length = unset

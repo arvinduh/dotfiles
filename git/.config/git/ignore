@@ -1,0 +1,42 @@
+# Global gitignore. Things that should never enter ANY repo.
+
+# ---- OS ---------------------------------------------------------------------
+.DS_Store
+Thumbs.db
+desktop.ini
+*~
+
+# ---- Editors ----------------------------------------------------------------
+.vscode/
+.idea/
+*.swp
+*.swo
+.nvim.lua
+.exrc
+
+# ---- Language / tool caches -------------------------------------------------
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.ruff_cache/
+.mypy_cache/
+.pytest_cache/
+node_modules/
+.turbo/
+target/
+.cache/
+compile_commands.json
+.ccls-cache/
+
+# ---- Direnv / env -----------------------------------------------------------
+.envrc
+.env
+.env.local
+
+# ---- Build artifacts --------------------------------------------------------
+*.o
+*.a
+*.so
+*.dylib
+*.exe

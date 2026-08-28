@@ -1,0 +1,58 @@
+# apt packages. Install with `make packages`.
+# One per line; `#` comments and blank lines ignored.
+
+# --- shell -------------------------------------------------------------------
+zsh
+zsh-autosuggestions
+zsh-syntax-highlighting
+stow
+
+# --- coreutils replacements --------------------------------------------------
+eza                   # ls
+bat                   # cat
+fd-find               # find  (binary is `fdfind` on Debian; aliased to fd)
+ripgrep               # grep
+zoxide                # cd
+fzf                   # fuzzy finder; powers ^R ^T and fzf-tab
+
+# --- git ---------------------------------------------------------------------
+git
+git-delta             # diff pager
+lazygit               # git TUI
+gh                    # github cli
+
+# --- history -----------------------------------------------------------------
+atuin
+
+# --- editor + multiplexer ----------------------------------------------------
+neovim
+tmux
+
+# --- C/C++, and the build deps treesitter needs to compile its parsers --------
+build-essential
+cmake
+ninja-build
+clang
+clangd
+clang-format
+clang-tidy
+
+# --- node ---------------------------------------------------------------------
+# Not for writing JS: Mason installs vtsls/marksman/jsonls/yamlls as npm
+# packages, and prettier and markdownlint-cli2 are npm too. Without this the
+# editor silently loses format-on-save and half its language servers.
+nodejs
+npm
+
+# --- required by the nvim config ---------------------------------------------
+# format.lua and nvim-lint dispatch to these by name. Not optional extras.
+shellcheck
+shfmt
+
+# --- everyday ----------------------------------------------------------------
+jq
+btop
+tealdeer
+curl
+wget
+unzip
