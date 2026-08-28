@@ -84,22 +84,56 @@ Prettier 3.
 ### Layer 2 — per-tool globals
 
 The tools that matter most do not read `.editorconfig`, so each gets a config
-carrying the same rules:
+carrying the same rules. **They do not all find those configs the same way**,
+and the difference decides whether your style applies outside `$HOME`. Tested,
+not assumed:
 
-| Tool | Global config | Reads `.editorconfig`? |
-| --- | --- | --- |
-| ruff | `~/.config/ruff/ruff.toml` ¹ | no |
-| clang-format | `~/.clang-format` | no |
-| rustfmt | `~/.rustfmt.toml` | no |
-| stylua | `~/.config/stylua/stylua.toml` ² | no |
-| taplo | `~/.taplo.toml` | no |
-| markdownlint-cli2 | `~/.markdownlint-cli2.jsonc` | no |
-| prettier | `~/.prettierrc` | yes |
-| shfmt | — | yes |
+| Tool | Global config | How it is found | Applies outside `$HOME`? |
+| --- | --- | --- | --- |
+| ruff | `~/.config/ruff/ruff.toml` | real user-level config slot | **yes** |
+| rustfmt | `~/.rustfmt.toml` | parent search, then `$HOME` | **yes** |
+| stylua | `~/.config/stylua/stylua.toml` ¹ | parent search, then user config dir | **yes** |
+| prettier | `~/.prettierrc` | parent search only | no |
+| clang-format | `~/.clang-format` | parent search only | no |
+| shfmt | `~/.editorconfig` | parent search only | no |
+| taplo | `~/.taplo.toml` | parent search only | no |
+| markdownlint-cli2 | `~/.markdownlint-cli2.jsonc` | **cwd only — no search at all** ² | only via `--config` |
 
-¹ Ruff has a genuine user-level config slot rather than a parent-search
-accident, and it maps to `%APPDATA%\ruff\ruff.toml` on Windows.
-² Requires `--search-parent-directories`, which conform.nvim passes.
+¹ Requires `--search-parent-directories`, which conform.nvim passes.
+² See below. This one silently broke every rule in the file.
+
+Ruff has a genuine user-level config slot rather than a parent-search accident,
+and it maps to `%APPDATA%\ruff\ruff.toml` on Windows.
+
+### The parent-search boundary
+
+Parent search walks **up** from the file and stops at the filesystem root. On
+Linux that is invisible, because your code lives under `~/` and the search
+passes through `$HOME` on the way. It matters in two places:
+
+- **Anything outside `$HOME`.** A repo at `/srv/thing` or `/tmp` gets prettier,
+  clang-format, shfmt and taplo **defaults**, not yours. Verified: the same
+  file formats differently in `~/cfgtest` and `/tmp`.
+- **Windows.** A project at `C:\code\thing` walks up to `C:\` and never
+  reaches `%USERPROFILE%`. Keep Windows projects under `C:\Users\<you>\...`
+  or your style silently does not apply.
+
+The three tools with real user-level config slots — ruff, rustfmt, stylua — are
+immune to this.
+
+### markdownlint-cli2 does not search at all
+
+Unlike every other tool here, markdownlint-cli2 reads its config from the
+**current working directory**, not by walking up from the file. So
+`~/.markdownlint-cli2.jsonc` was invisible whenever Neovim was started anywhere
+else, and every rule disabled in it — `MD013` line-length in particular — came
+back. nvim-lint therefore passes `--config` explicitly. A project shipping its
+own config still wins, because the per-directory config merges over it.
+
+That file also must not contain a `globs` key. markdownlint-cli2 **appends**
+globs to whatever path it is given, so `"globs": ["**/*.md"]` turns "lint this
+file" into "lint every markdown file under the cwd" — running it from `$HOME`
+started linting `~/.rustup` and `~/projects`.
 
 ### Two conflicts that cannot be solved
 

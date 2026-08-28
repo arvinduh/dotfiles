@@ -23,7 +23,9 @@
     "MD029": { "style": "ordered" },    // 1. 2. 3. not 1. 1. 1.
     "MD033": false,                     // inline HTML — sometimes necessary
     "MD041": false                      // first line need not be a top heading
-  },
-  "globs": ["**/*.md"],
-  "ignores": ["**/node_modules/**", "**/.venv/**", "**/target/**", "**/CHANGELOG.md"]
+  }
 }
+// No "globs" or "ignores" keys on purpose. markdownlint-cli2 APPENDS globs to
+// whatever path it was given, so `globs: ["**/*.md"]` turns "lint this one
+// file" into "lint every markdown file under the cwd" — running it from $HOME
+// linted ~/.rustup and ~/projects. This file is rules only.

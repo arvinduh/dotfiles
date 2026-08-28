@@ -16,13 +16,31 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 vim.api.nvim_create_autocmd("FileType", {
   group = aug("prose"),
   pattern = { "markdown", "text", "gitcommit", "typst", "tex" },
-  callback = function()
-    vim.opt_local.wrap = true
+  callback = function(ev)
     vim.opt_local.linebreak = true
     vim.opt_local.spell = true
     vim.opt_local.formatoptions:append("t")
+
+    -- Markdown is the exception: soft wrap OFF.
+    --
+    -- A table row must be a single line — a newline ends the row — so a
+    -- soft-wrapped row cannot be rendered as a table by markview, and no
+    -- formatter can wrap one either. Prose does not need soft wrap here
+    -- anyway: prettier's proseWrap already hard-wraps the source at 80, and
+    -- 't' above wraps as you type. The only lines over 80 are tables and long
+    -- URLs, which is exactly what soft wrap breaks.
+    --
+    -- Wide tables scroll horizontally instead. <leader>uw toggles wrap back
+    -- on for the buffer when you want it.
+    vim.opt_local.wrap = vim.bo[ev.buf].filetype ~= "markdown"
   end,
 })
+
+-- Toggle soft wrap for the current buffer.
+vim.keymap.set("n", "<leader>uw", function()
+  vim.opt_local.wrap = not vim.wo.wrap
+  vim.notify("wrap " .. (vim.wo.wrap and "ON" or "OFF"))
+end, { desc = "Toggle soft wrap" })
 
 -- Never continue a comment leader onto a line you opened manually. (Set here
 -- rather than in options.lua because ftplugins reset formatoptions.)

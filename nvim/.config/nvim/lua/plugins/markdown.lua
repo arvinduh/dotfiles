@@ -1,32 +1,33 @@
--- Markdown rendered in the buffer itself — no browser, no external binary.
+-- Markdown rendered in the buffer.
 --
--- It renders continuously as you move; there is no command to run. The line
--- the cursor is on is un-rendered (anti_conceal) so you always edit raw text
--- where you are, and see the rendered form everywhere else.
+-- hybrid mode is the reason this is worth having: the document renders, but
+-- the line the cursor is on drops back to raw source so you edit real text
+-- where you are. linewise_hybrid_mode restricts that to the single line —
+-- without it, markview un-renders the whole treesitter node under the cursor,
+-- so putting the cursor in a table reveals the entire table.
+--
+-- Preview is off in insert mode by design: while typing you want the source.
 
 return {
   {
-    "MeanderingProgrammer/render-markdown.nvim",
+    "OXY2DEV/markview.nvim",
     ft = { "markdown" },
-    dependencies = { "nvim-treesitter/nvim-treesitter" },
+    dependencies = {
+      "nvim-treesitter/nvim-treesitter",
+      "nvim-tree/nvim-web-devicons",
+    },
     opts = {
-      -- Reveal the raw source on the cursor's line only.
-      anti_conceal = { enabled = true },
-      heading = { sign = false },
-      code = {
-        sign = false,
-        width = "block",
-        right_pad = 2,
+      preview = {
+        modes = { "n", "no", "c" },
+        hybrid_modes = { "n" },
+        linewise_hybrid_mode = true,
       },
-      -- No colours set here on purpose: it derives from the active
-      -- colorscheme, so it follows whatever theme is chosen later.
+      -- No highlight overrides: markview derives from the active colorscheme,
+      -- so it follows whatever theme gets chosen later.
     },
     keys = {
-      {
-        "<leader>um",
-        "<cmd>RenderMarkdown toggle<cr>",
-        desc = "Toggle markdown rendering",
-      },
+      { "<leader>um", "<cmd>Markview toggle<cr>", desc = "Toggle markdown preview" },
+      { "<leader>uM", "<cmd>Markview splitToggle<cr>", desc = "Markdown preview in a split" },
     },
   },
 }
