@@ -10,7 +10,10 @@
 
 # The directory layout IS the package list. Adding a tool means adding a
 # directory that mirrors its target path; nothing here needs editing.
-STOW := $(patsubst %/,%,$(filter-out docs/,$(wildcard */)))
+#
+# docs/ is prose. windows/ mirrors %APPDATA% and %LOCALAPPDATA%, not $HOME, so
+# stow has nothing to do with it — windows/link.ps1 is its equivalent.
+STOW := $(patsubst %/,%,$(filter-out docs/ windows/,$(wildcard */)))
 
 # $(HOME) at depth 2 already covers ~/.config/*; .local/bin is deeper.
 HOME_LINKS := $(HOME) $(HOME)/.local/bin

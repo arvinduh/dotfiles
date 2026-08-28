@@ -9,6 +9,8 @@
 -- You WILL need this the first time you open a repo whose style you must not
 -- touch; without it you will fight your own config inside a PR diff.
 
+local platform = require("config.platform")
+
 -- Point a formatter at the global config when the project has none.
 --
 -- MARKERS are the project-config filenames to look for, walking up from the
@@ -21,7 +23,8 @@
 local function global_fallback(markers, global, mk_args, defaults)
   defaults = defaults or {}
   return function(_, ctx)
-    local found = vim.fs.find(markers, { path = ctx.dirname, upward = true, limit = 1 })[1]
+    local found =
+      vim.fs.find(markers, { path = ctx.dirname, upward = true, limit = 1 })[1]
     if found then
       return defaults
     end
@@ -81,9 +84,25 @@ return {
       end,
 
       formatters = {
-        -- --search-parent-directories is what makes ~/.config/stylua/stylua.toml
-        -- act as the global fallback.
-        stylua = { prepend_args = { "--search-parent-directories" } },
+        -- --search-parent-directories walks up from the file and then checks
+        -- $XDG_CONFIG_HOME. That is enough on Linux, where .zshenv sets it,
+        -- but NOT on Windows, where it is unset and stylua does not fall back
+        -- to %APPDATA% — it silently reverts to its own default of TABS.
+        -- platform.stylua_config() names the file for whichever OS we are on.
+        --
+        -- A project shipping its own stylua.toml still wins, and in that case
+        -- nothing is prepended at all: conform's own args already carry
+        -- --search-parent-directories, and stylua errors out if it is given
+        -- that flag twice.
+        stylua = {
+          prepend_args = global_fallback(
+            { "stylua.toml", ".stylua.toml" },
+            platform.stylua_config(),
+            function(cfg)
+              return { "--config-path", cfg }
+            end
+          ),
+        },
 
         -- shfmt is given its flags outright, so it behaves identically no
         -- matter where the file lives.
@@ -106,27 +125,50 @@ return {
           ),
         },
         prettier = {
-          prepend_args = global_fallback({
-            ".prettierrc",
-            ".prettierrc.json",
-            ".prettierrc.yml",
-            ".prettierrc.yaml",
-            ".prettierrc.json5",
-            ".prettierrc.js",
-            ".prettierrc.cjs",
-            ".prettierrc.mjs",
-            ".prettierrc.toml",
-            "prettier.config.js",
-            "prettier.config.cjs",
-            "prettier.config.mjs",
-          }, "~/.prettierrc", function(cfg)
-            return { "--config", cfg }
-          end),
+          prepend_args = global_fallback(
+            {
+              ".prettierrc",
+              ".prettierrc.json",
+              ".prettierrc.yml",
+              ".prettierrc.yaml",
+              ".prettierrc.json5",
+              ".prettierrc.js",
+              ".prettierrc.cjs",
+              ".prettierrc.mjs",
+              ".prettierrc.toml",
+              "prettier.config.js",
+              "prettier.config.cjs",
+              "prettier.config.mjs",
+            },
+            "~/.prettierrc",
+            function(cfg)
+              return { "--config", cfg }
+            end
+          ),
         },
+        -- taplo is the one that cannot use prepend_args. Its default args are
+        -- { "format", "--stdin-filepath", "$FILENAME", "-" }, and prepending
+        -- produces `taplo --config X format ...`, which taplo rejects outright:
+        --   error: unexpected argument '--config' found
+        --   tip: 'format --config' exists
+        -- --config is a flag OF the subcommand, so the whole list is replaced
+        -- to place it after `format`. Silent no-op before this was fixed.
         taplo = {
-          prepend_args = global_fallback({ ".taplo.toml", "taplo.toml" }, "~/.taplo.toml", function(cfg)
-            return { "--config", cfg }
-          end),
+          args = global_fallback(
+            { ".taplo.toml", "taplo.toml" },
+            "~/.taplo.toml",
+            function(cfg)
+              return {
+                "format",
+                "--config",
+                cfg,
+                "--stdin-filepath",
+                "$FILENAME",
+                "-",
+              }
+            end,
+            { "format", "--stdin-filepath", "$FILENAME", "-" }
+          ),
         },
       },
     },
@@ -136,10 +178,18 @@ return {
       vim.api.nvim_create_user_command("FormatToggle", function(args)
         if args.bang then
           vim.g.disable_autoformat = not vim.g.disable_autoformat
-          vim.notify("format-on-save " .. (vim.g.disable_autoformat and "OFF" or "ON") .. " (global)")
+          vim.notify(
+            "format-on-save "
+              .. (vim.g.disable_autoformat and "OFF" or "ON")
+              .. " (global)"
+          )
         else
           vim.b.disable_autoformat = not vim.b.disable_autoformat
-          vim.notify("format-on-save " .. (vim.b.disable_autoformat and "OFF" or "ON") .. " (buffer)")
+          vim.notify(
+            "format-on-save "
+              .. (vim.b.disable_autoformat and "OFF" or "ON")
+              .. " (buffer)"
+          )
         end
       end, { desc = "Toggle format-on-save", bang = true })
     end,
@@ -170,12 +220,15 @@ return {
         sh = { "shellcheck" },
         bash = { "shellcheck" },
       }
-      vim.api.nvim_create_autocmd({ "BufWritePost", "BufReadPost", "InsertLeave" }, {
-        group = vim.api.nvim_create_augroup("dot_lint", { clear = true }),
-        callback = function()
-          require("lint").try_lint()
-        end,
-      })
+      vim.api.nvim_create_autocmd(
+        { "BufWritePost", "BufReadPost", "InsertLeave" },
+        {
+          group = vim.api.nvim_create_augroup("dot_lint", { clear = true }),
+          callback = function()
+            require("lint").try_lint()
+          end,
+        }
+      )
     end,
   },
 

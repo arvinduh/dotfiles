@@ -1,0 +1,112 @@
+# starship — the PowerShell prompt. Linked to ~/.config/starship.toml.
+#
+# This is deliberately NOT a port of the Ubuntu p10k prompt. That one is two
+# lines, leads with an OS icon and right-aligns status; this one is a single
+# line of plain text. The two machines should not be mistakable for each other
+# at a glance, which is the whole point.
+#
+# No hex colours anywhere. Every style below names a terminal colour, so the
+# prompt follows whatever palette Windows Terminal is set to rather than
+# fighting it. Nothing here assumes a Nerd Font either — the font matters for
+# nvim's statusline, not for this.
+#
+# starship spawns a process per render, so the rule is: nothing in `format`
+# may shell out on a prompt that does not need it. The [disabled] block at the
+# bottom is load-bearing, not tidying.
+
+format = """
+$directory\
+$git_branch\
+$git_status\
+$python$rust$nodejs$c\
+$cmd_duration\
+$character"""
+
+# p10k has no leading blank line either; this keeps scrollback dense.
+add_newline = false
+
+[directory]
+style = "blue bold"
+truncation_length = 3
+truncate_to_repo = true
+truncation_symbol = ".../"
+read_only = " [ro]"
+read_only_style = "red"
+
+[git_branch]
+format = "[$branch]($style) "
+style = "purple"
+symbol = ""
+
+# Terse by design: the counts answer "is anything uncommitted", and `lazygit`
+# answers everything past that.
+[git_status]
+format = '([$all_status$ahead_behind]($style) )'
+style = "red"
+conflicted = "!"
+ahead = "^${count}"
+behind = "v${count}"
+diverged = "^${ahead_count}v${behind_count}"
+untracked = "?${count}"
+stashed = "$${count}"
+modified = "*${count}"
+staged = "+${count}"
+renamed = "»${count}"
+deleted = "-${count}"
+
+# Language modules appear only inside a project that uses them — that is
+# starship's default detection, not something configured here. They are listed
+# in `format` so the ORDER is fixed; without that starship would print them in
+# its own.
+[python]
+format = '[py $version]($style) '
+style = "dimmed yellow"
+symbol = ""
+
+[rust]
+format = '[rs $version]($style) '
+style = "dimmed yellow"
+symbol = ""
+
+[nodejs]
+format = '[node $version]($style) '
+style = "dimmed yellow"
+symbol = ""
+
+[c]
+format = '[c $version]($style) '
+style = "dimmed yellow"
+symbol = ""
+
+# Anything faster than this you did not wait for, so reporting it is noise.
+[cmd_duration]
+min_time = 2000
+format = "[$duration]($style) "
+style = "yellow"
+
+# `>` rather than p10k's `❯`, and it turns red on a non-zero exit — which is
+# the whole of the right prompt this config does not have.
+[character]
+success_symbol = "[>](green)"
+error_symbol = "[>](red)"
+vicmd_symbol = "[<](green)"
+
+# --- modules that cost a process on every prompt -----------------------------
+# These shell out to a CLI or read a file to render, and none of them tells us
+# anything on this machine.
+[aws]
+disabled = true
+[gcloud]
+disabled = true
+[azure]
+disabled = true
+[docker_context]
+disabled = true
+[package]
+disabled = true
+[kubernetes]
+disabled = true
+[hostname]
+disabled = true
+[username]
+disabled = true

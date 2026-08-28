@@ -1,0 +1,20 @@
+# One repo, two checkouts: WSL and native Windows.
+#
+# Git for Windows ships core.autocrlf=true, which wants CRLF in the working
+# tree. Neovim writes lazy-lock.json with LF, so every single nvim launch left
+# the file showing as modified with an EMPTY content diff — noise that
+# eventually gets committed by accident, and lazy-lock.json is precisely the
+# file the two machines must agree on (update on one, `:Lazy restore` on the
+# other).
+#
+# Pinning LF everywhere settles it. Nothing here needs CRLF: PowerShell reads
+# LF scripts fine, and both windows/link.ps1 and windows/profile.ps1 are LF.
+* text=auto eol=lf
+
+# Binaries git should never touch.
+*.png binary
+*.jpg binary
+*.gz  binary
+*.zip binary
+*.ttf binary
+*.otf binary
