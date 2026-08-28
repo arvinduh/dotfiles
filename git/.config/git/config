@@ -25,10 +25,9 @@
   line-numbers = true
   hyperlinks = true
   side-by-side = false
-  syntax-theme = Catppuccin Mocha
   file-style = bold yellow
   file-decoration-style = none
-  hunk-header-decoration-style = "#45475a" box ul
+  hunk-header-decoration-style = blue box ul
 
 [merge]
   conflictstyle = zdiff3    # shows the common ancestor — far easier to resolve

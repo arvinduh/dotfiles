@@ -13,7 +13,7 @@ do
     source "$_p"
     # Suggest from history first, then completion — completion is the slow one.
     ZSH_AUTOSUGGEST_STRATEGY=(history completion)
-    ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=#6c7086'   # catppuccin overlay0
+    ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=8'         # ANSI bright black; follows the terminal
     ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=20             # don't suggest on huge lines
     bindkey '^ '  autosuggest-accept               # ctrl-space: accept all
     bindkey '^[f' forward-word                     # alt-f: accept one word

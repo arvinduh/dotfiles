@@ -1,5 +1,4 @@
 # ~/.config/bat/config  (Windows: %APPDATA%\bat\config)
---theme="Catppuccin Mocha"
 --style="numbers,changes,header"
 --italic-text=always
 --map-syntax=".zshrc:Bourne Again Shell (bash)"

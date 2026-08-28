@@ -3,14 +3,11 @@
 
 # ---- fzf --------------------------------------------------------------------
 if (( $+commands[fzf] )); then
-  # Catppuccin Mocha, matching nvim / tmux / the prompt.
+  # No --color: fzf inherits the terminal palette, so re-theming the terminal
+  # re-themes fzf with nothing to edit here.
   export FZF_DEFAULT_OPTS="
     --height=60% --layout=reverse --border=rounded --info=inline
     --preview-window=right:55%:border-left
-    --color=bg+:#313244,bg:#1e1e2e,spinner:#f5e0dc,hl:#f38ba8
-    --color=fg:#cdd6f4,header:#f38ba8,info:#cba6f7,pointer:#f5e0dc
-    --color=marker:#b4befe,fg+:#cdd6f4,prompt:#cba6f7,hl+:#f38ba8
-    --color=border:#585b70
     --bind=ctrl-u:preview-half-page-up,ctrl-d:preview-half-page-down
     --bind=ctrl-y:accept"
 
@@ -22,7 +19,13 @@ if (( $+commands[fzf] )); then
     export FZF_ALT_C_COMMAND="$_fdcmd --type=directory --hidden --follow --exclude=.git"
     unset _fdcmd
   fi
-  export FZF_CTRL_T_OPTS="--preview 'bat --color=always --style=numbers --line-range=:300 {} 2>/dev/null || eza -1 --icons --color=always {}'"
+  # Preview commands run via sh, where the interactive `bat` alias does not
+  # exist — so resolve the real binary name here, the same way fd is handled.
+  if (( $+commands[bat] || $+commands[batcat] )); then
+    _batcmd=${commands[bat]:-${commands[batcat]}}
+    export FZF_CTRL_T_OPTS="--preview '$_batcmd --color=always --style=numbers --line-range=:300 {} 2>/dev/null || eza -1 --icons --color=always {}'"
+    unset _batcmd
+  fi
   export FZF_ALT_C_OPTS="--preview 'eza --tree --level=2 --icons --color=always {}'"
 
   # fzf >= 0.48 ships its own shell integration; prefer it over vendored files.

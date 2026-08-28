@@ -34,7 +34,9 @@ vim.opt.rtp:prepend(lazypath)
 require("lazy").setup({
   spec = { { import = "plugins" } },
   defaults = { lazy = true },
-  install = { colorscheme = { "catppuccin" } },
+  -- No colorscheme plugin: nvim's built-in default is in use until one is
+  -- chosen deliberately. lazy falls back to habamax while installing.
+  install = { colorscheme = { "habamax" } },
   checker = {
     enabled = true, -- notify when updates exist...
     notify = false, -- ...but quietly; run `dot update` when you choose to
