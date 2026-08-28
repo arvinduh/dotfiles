@@ -104,9 +104,21 @@ return {
           ),
         },
 
-        -- shfmt is given its flags outright, so it behaves identically no
-        -- matter where the file lives.
-        shfmt = { prepend_args = { "-i", "2", "-ci", "-bn" } },
+        -- shfmt replaces its args rather than prepending them.
+        --
+        -- conform's own shfmt args END with `-i <buffer shiftwidth>` whenever
+        -- there is no .editorconfig above the file, and guess-indent.nvim sets
+        -- that shiftwidth from the indentation already in the buffer. A
+        -- 4-space script therefore formatted back to 4 spaces: the appended
+        -- -i won over any -i prepended in front of it.
+        --
+        -- Passing -ci or -bn at all makes shfmt ignore .editorconfig entirely
+        -- (any formatting flag disables it), so there is no config-discovery
+        -- question to answer here — the style is stated outright and is
+        -- identical on every machine and in every directory.
+        shfmt = {
+          args = { "-i", "2", "-ci", "-bn", "-filename", "$FILENAME" },
+        },
 
         -- prettier, clang-format and taplo find config ONLY by walking up from
         -- the file, and that walk stops at the filesystem root. A project

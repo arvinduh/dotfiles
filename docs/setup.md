@@ -257,19 +257,49 @@ Mode**, or run the script elevated every time; `link.ps1` probes for the
 capability up front and names both fixes rather than failing halfway through the
 map.
 
+### Both machines must run the same Neovim
+
+`lazy-lock.json` pins every plugin to an exact commit — but a pinned plugin only
+behaves identically if the **host Neovim** matches too, and winget will happily
+install a newer one than apt ships.
+
+This is not theoretical. Windows on 0.12.5 against WSL's 0.11.6 produced:
+
+```text
+Error in BufWinEnter Autocommands for "*":
+  .../runtime/lua/vim/treesitter.lua:197: attempt to call method 'range' (a nil value)
+```
+
+`nvim-treesitter` is pinned to its `master` branch, which targets 0.11 and
+below; 0.12 changed treesitter internals its query predicates call into. The
+failure only surfaces once something parses a markdown injection — markview, in
+that case — so it reads as a markview bug and is not one.
+
+Install the matching version explicitly rather than letting winget pick:
+
+```powershell
+winget install --id Neovim.Neovim --version 0.11.6 --exact --uninstall-previous
+```
+
+`make check` and `windows\check.ps1` assert the version, so a mismatch fails
+with a plain message instead of a traceback three files deep. Moving both
+machines to 0.12 later means moving `nvim-treesitter` to its `main` branch at
+the same time, and updating the version in `tests/run.lua` and
+`windows/packages.txt` with it.
+
 ### Startup cost
 
 Measured 2026-08-27, average of five cold `pwsh` launches: **~0.45s** bare,
 **~1.75s** with this profile, so the profile itself costs **~1.3s**. The WSL
 side starts zsh in ~0.10s. They are not comparable and will not become so.
 
-Most of it — ~0.8s — is `starship init`. The line is cheap to *run*; it is
-expensive to *compile*. starship emits a bootstrap that re-runs starship to
-print a 207-line script, and PowerShell parses that script on every launch.
-Two fixes were measured and rejected: calling `--print-full-init` directly to
-skip the second process saved ~7ms (the spawn was never the cost), and caching
-the generated script to a file saved ~140ms while adding a staleness failure
-mode the rest of this repo exists to avoid.
+Most of it — ~0.8s — is `starship init`. The line is cheap to _run_; it is
+expensive to _compile_. starship emits a bootstrap that re-runs starship to
+print a 207-line script, and PowerShell parses that script on every launch. Two
+fixes were measured and rejected: calling `--print-full-init` directly to skip
+the second process saved ~7ms (the spawn was never the cost), and caching the
+generated script to a file saved ~140ms while adding a staleness failure mode
+the rest of this repo exists to avoid.
 
 `Terminal-Icons` was dropped rather than kept. On its own it measured **~1.0s**
 — more than everything else in the profile combined — to put glyphs on
@@ -277,10 +307,9 @@ mode the rest of this repo exists to avoid.
 it took the profile from ~2.0s to ~1.3s. Keeping both would also have meant two
 owners for one job.
 
-The prompt then costs ~250ms per render inside a git repo and ~50ms outside
-one, most of it process startup rather than anything starship does. p10k avoids
-this by running in-process with a `gitstatusd` daemon; no PowerShell prompt
-does.
+The prompt then costs ~250ms per render inside a git repo and ~50ms outside one,
+most of it process startup rather than anything starship does. p10k avoids this
+by running in-process with a `gitstatusd` daemon; no PowerShell prompt does.
 
 ### LLVM on Windows is not a C compiler
 
@@ -293,9 +322,9 @@ headers**, so compiling a parser dies immediately:
 tree_sitter/parser.h:10:10: fatal error: 'stdlib.h' file not found
 ```
 
-It needs a Windows SDK or a MinGW toolchain beside it before it is a compiler
-at all. `MartinStorsjo.LLVM-MinGW.UCRT` supplies the headers, and its `gcc`
-builds parsers unmodified.
+It needs a Windows SDK or a MinGW toolchain beside it before it is a compiler at
+all. `MartinStorsjo.LLVM-MinGW.UCRT` supplies the headers, and its `gcc` builds
+parsers unmodified.
 
 This matters more than it looks, because `nvim-treesitter` selects the first
 compiler on its list that **exists**, not the first that works. Leaving `clang`

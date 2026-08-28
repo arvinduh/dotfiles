@@ -7,18 +7,19 @@
 #   make packages   install packages.txt via apt
 #   make doctor     check that what is linked actually resolves
 #   make audit      line counts by language (needs scc)
+#   make check      assert the formatters and linters actually work
 
 # The directory layout IS the package list. Adding a tool means adding a
 # directory that mirrors its target path; nothing here needs editing.
 #
 # docs/ is prose. windows/ mirrors %APPDATA% and %LOCALAPPDATA%, not $HOME, so
 # stow has nothing to do with it — windows/link.ps1 is its equivalent.
-STOW := $(patsubst %/,%,$(filter-out docs/ windows/,$(wildcard */)))
+STOW := $(patsubst %/,%,$(filter-out docs/ windows/ tests/,$(wildcard */)))
 
 # $(HOME) at depth 2 already covers ~/.config/*; .local/bin is deeper.
 HOME_LINKS := $(HOME) $(HOME)/.local/bin
 
-.PHONY: link unlink packages doctor audit help
+.PHONY: link unlink packages doctor audit check help
 
 help:
 	@sed -n '1,9p' Makefile | sed 's/^# \?//'
@@ -61,3 +62,8 @@ audit:
 	@command -v scc >/dev/null 2>&1 \
 	  && scc \
 	  || echo "scc not installed — see the bootstrap block in README.md"
+
+# The same Lua suite Windows runs, so there is one implementation rather than a
+# shell script and a PowerShell twin that drift apart.
+check:
+	@nvim --headless -c 'luafile tests/run.lua'

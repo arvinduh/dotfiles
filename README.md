@@ -96,7 +96,8 @@ half-cloned parser directories that make the next attempt fail. `:Mason`,
 `:TSInstallInfo` and `:checkhealth` confirm.
 
 If parsers fail to build, the compiler is the usual reason: LLVM alone is not
-enough on Windows. See [docs/setup.md](docs/setup.md#llvm-on-windows-is-not-a-c-compiler).
+enough on Windows. See
+[docs/setup.md](docs/setup.md#llvm-on-windows-is-not-a-c-compiler).
 
 `PSReadLine` is not in the list: PS7 already ships a version new enough for
 `PredictiveIntelliSense`, and installing the Gallery copy on top can shadow it
@@ -169,7 +170,7 @@ any project that ships its own config.
 
 ## Layout
 
-```
+```text
 Makefile        link, unlink, packages, doctor
 packages.txt    the apt list
 zsh/ nvim/ tmux/ git/ bat/ atuin/ format/ scc/
