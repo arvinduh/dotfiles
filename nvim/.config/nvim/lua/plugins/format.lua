@@ -53,7 +53,11 @@ return {
     },
     opts = {
       formatters_by_ft = {
-        python = { "ruff_format", "ruff_organize_imports" },
+        -- ruff_fix first: applies safe lint autofixes (unused imports gone,
+        -- SIM/UP rewrites) before formatting. Order matters — conform runs the
+        -- list in sequence, so fixes land, then the formatter reflows, then
+        -- imports are sorted.
+        python = { "ruff_fix", "ruff_format", "ruff_organize_imports" },
         cpp = { "clang_format" },
         c = { "clang_format" },
         rust = { "rustfmt" },
