@@ -25,3 +25,5 @@ unset _f
 
 # Machine-specific overrides. Gitignored — never committed, never shared.
 [[ -r "$ZDOTDIR/local.zsh" ]] && source "$ZDOTDIR/local.zsh"
+
+export PATH=$PATH:"/mnt/c/Users/olives/AppData/Local/Programs/Microsoft VS Code/bin/"
