@@ -36,22 +36,25 @@ Agents must avoid unbounded discovery loops, speculative reasoning essays, and
 context pollution.
 
 ### A. Bounded File Reading
+
 - **Never dump whole files:** For files longer than 100 lines, do not view the
   entire file at once. Specify line ranges (`StartLine`, `EndLine`).
 - **Grep Before Read:** Always use `rg` (ripgrep) or targeted symbol search to
-  locate the exact function, struct, or diagnostic site *before* reading lines.
+  locate the exact function, struct, or diagnostic site _before_ reading lines.
 - **Index & Header First:** Inspect module-level documentation (`//!`), struct
   definitions, and public entry points first. Do not inspect private
   implementation bodies unless active logic changes are required.
 
 ### B. Single-Hypothesis Verification
+
 - Formulate **one concrete hypothesis** at a time.
 - Perform the smallest verifiable check (e.g., `cargo check -p <crate>`) rather
   than speculating on five hypothetical scenarios.
-- When fixing compiler or linter diagnostics, read the exact lines flagged in the
-  error message—do not read unrelated caller chains.
+- When fixing compiler or linter diagnostics, read the exact lines flagged in
+  the error message—do not read unrelated caller chains.
 
 ### C. 3-Step Early Halt
+
 - If a problem cannot be diagnosed or resolved within **three consecutive tool
   calls**, pause immediately.
 - State the exact technical blocker and compiler output concisely, and ask the
@@ -64,6 +67,7 @@ context pollution.
 **Do not add anything until it is immediately needed.**
 
 ### A. Visibility (Module Files as Gatekeepers)
+
 - Avoid noisy, repetitive `pub(crate)` annotations throughout internal code.
 - Items inside submodules can use standard `pub` where access within the module
   tree is needed.
@@ -75,6 +79,7 @@ context pollution.
 - Struct fields must remain private unless external access is strictly required.
 
 ### B. Derives & Traits
+
 - **Do not blindly derive traits.** No automatic
   `#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]`.
 - Only add a derive when the compiler actively requires it for the code being
@@ -82,13 +87,15 @@ context pollution.
   calls a trait method.
 
 ### C. Dependencies & Features
+
 - **Zero speculative dependencies in package manifests.**
-- Do not add any crate/dependency until the specific component being written
-  in the current commit directly imports and uses it.
+- Do not add any crate/dependency until the specific component being written in
+  the current commit directly imports and uses it.
 - **Strict feature gating:** Do not enable default or extra crate features
   unless the code actively references types from those specific features.
 
 ### D. Functions, Getters, and Setters
+
 - **No unused code.** Do not write getters, setters, helper functions,
   constructors, or fields "just in case."
 - If data is not consumed by an active caller right now, do not write code to
@@ -101,23 +108,24 @@ context pollution.
 A clean git history enables effortless code review and robust `git bisect`.
 
 ### Rules
-- **50-Line Soft Ceiling:** Each commit should target **<= 50 lines of net diff**
-  (excluding auto-generated lockfiles or test assets).
+
+- **50-Line Soft Ceiling:** Each commit should target **<= 50 lines of net
+  diff** (excluding auto-generated lockfiles or test assets).
 - **Every Commit Must Build and Pass Gates:**
   - Never commit a broken intermediate or "WIP" state.
   - Every single commit must leave the repository in a fully compiling, tested,
     and formatted state.
 - **Incremental Progression:**
-  1. *Commit 1:* Introduce the localized error variant or private data struct.
-  2. *Commit 2:* Implement the constructor or private helper logic.
-  3. *Commit 3:* Expose the entry point through the module gatekeeper.
-  4. *Commit 4:* Connect the caller to consume it.
+  1. _Commit 1:_ Introduce the localized error variant or private data struct.
+  2. _Commit 2:_ Implement the constructor or private helper logic.
+  3. _Commit 3:_ Expose the entry point through the module gatekeeper.
+  4. _Commit 4:_ Connect the caller to consume it.
 - **Commit Message Standards (Conventional Commits):**
   - Format: `<type>(<scope>): <imperative summary>`
   - Types: `feat`, `fix`, `refactor`, `style`, `docs`, `test`, `chore`.
   - The summary must be lowercase, imperative mood, without a trailing period
     (e.g., `feat(canvas): add dpr scaling support`).
-  - The body (if required) must focus on *why* the change was made and
+  - The body (if required) must focus on _why_ the change was made and
     non-obvious invariants, separated by a blank line.
 
 ---
@@ -125,10 +133,11 @@ A clean git history enables effortless code review and robust `git bisect`.
 ## 5. Worktree Isolation for Multi-Agent Workflows
 
 When multiple subagents operate concurrently, never execute work in the same
-working directory to avoid git lock contention, dirty tree collisions, and
-build artifact clashes.
+working directory to avoid git lock contention, dirty tree collisions, and build
+artifact clashes.
 
 ### Protocol
+
 - **Directory Isolation:** Create isolated workspaces inside `.worktrees/`:
   ```bash
   git worktree add .worktrees/feat-<name> -b feat/<name> origin/main
@@ -161,16 +170,19 @@ Every item must be documented for clean generation and effortless IDE hover
 navigation (`rust-analyzer`, `clangd`, language servers).
 
 ### A. Module-Level Documentation (`//!`)
+
 - Every module file must begin with an inner doc comment providing:
   1. A one-sentence summary of the module's core responsibility.
-  2. A concise paragraph explaining its architectural boundary (what it owns
-     vs. what neighboring layers own).
+  2. A concise paragraph explaining its architectural boundary (what it owns vs.
+     what neighboring layers own).
 
 ### B. Item-Level Documentation (`///`)
+
 - **One-Sentence Summary:** The first line must be a concise, active-voice
   summary ending with a period.
 - **High Signal, Zero Fluff:** Do not write tautological docstrings that merely
-  restate type signatures. Explain *intent*, *units*, or non-obvious constraints.
+  restate type signatures. Explain _intent_, _units_, or non-obvious
+  constraints.
 - **Standard Doc Sections (Use only when applicable):**
   - `# Side Effects`: Explicitly state mutations, I/O, or event listeners.
   - `# Errors`: Explain specific conditions that return `Result::Err`.

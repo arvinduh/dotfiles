@@ -2,9 +2,9 @@
 name: python-engineering-guide
 description: >-
   Comprehensive guide for writing, reviewing, and refactoring Python code.
-  Enforces Google Python Style Guide standards, Ruff formatting (2-space, 80-col),
-  Basedpyright type checking, explicit module imports, and Google docstring conventions.
-  Activate whenever working with Python (.py) files.
+  Enforces Google Python Style Guide standards, Ruff formatting (2-space,
+  80-col), Basedpyright type checking, explicit module imports, and Google
+  docstring conventions. Activate whenever working with Python (.py) files.
 ---
 
 # Python Engineering Guide — Google Style & Architecture Specification
@@ -30,13 +30,14 @@ All Python formatting and linting is mechanically governed by Ruff:
 ## 2. Import Conventions (Google Style)
 
 ### Import Modules, Not Symbols
+
 - **Rule:** Use `import x` for packages and modules.
 - **Allowed:** `from package import module` to qualify submodule paths.
 - **Forbidden:** Do not import classes or functions directly from internal
   modules (e.g., `from my_module import calculate_metric` is forbidden; write
   `from package import my_module` and call `my_module.calculate_metric()`).
-- **Typing Exception:** Type annotations may be imported directly from
-  `typing` and `collections.abc` (e.g., `from typing import Any, Self`).
+- **Typing Exception:** Type annotations may be imported directly from `typing`
+  and `collections.abc` (e.g., `from typing import Any, Self`).
 - **No Wildcard Imports:** `from foo import *` is strictly forbidden.
 
 ---

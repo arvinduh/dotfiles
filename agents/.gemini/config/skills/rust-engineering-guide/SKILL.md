@@ -1,11 +1,12 @@
 ---
 name: rust-engineering-guide
 description: >-
-  Comprehensive 3-Tier specification for writing, refactoring, and reviewing Rust code.
-  Enforces Google-adapted 2-space/80-col formatting, explicit module manifests, UCS trait calls,
-  thiserror error hierarchies, gatekeeper module visibility, zero-allocation idle state, and
-  workspace clippy lints. Activate whenever working with Rust (.rs) files, Cargo workspaces, or
-  Rust formatting/clippy issues.
+  Comprehensive 3-Tier specification for writing, refactoring, and reviewing
+  Rust code. Enforces Google-adapted 2-space/80-col formatting, explicit module
+  manifests, UCS trait calls, thiserror error hierarchies, gatekeeper module
+  visibility, zero-allocation idle state, and workspace clippy lints. Activate
+  whenever working with Rust (.rs) files, Cargo workspaces, or Rust
+  formatting/clippy issues.
 ---
 
 # Rust Engineering Guide — 3-Tier Architecture & Style Specification
@@ -40,6 +41,7 @@ compiler linting, and architectural principles for Rust codebases.
 All code formatting is purely mechanical. Formatting debates are forbidden.
 
 ### Core Configuration
+
 - **Indentation:** 2 spaces (`tab_spaces = 2`, `hard_tabs = false`).
 - **Line Width:** 80 columns (`max_width = 80`).
 - **Newlines:** Unix LF (`newline_style = "Unix"`).
@@ -95,6 +97,7 @@ explicit_deref_methods = "warn"
 ## 4. Tier 3: Rust Architecture & Module System
 
 ### A. Strict File Header Manifest (IWYU Principle)
+
 Every file must begin with an explicit manifest of all external crates and
 internal modules it consumes.
 
@@ -120,6 +123,7 @@ internal modules it consumes.
   Anonymous imports create an untraceable origin black hole.
 
 ### B. Qualification in Code
+
 - Always qualify every struct, enum, and function by its module or crate:
   ```rust
   let window = window::Window::new()?;
@@ -133,11 +137,12 @@ internal modules it consumes.
     wasm_bindgen::JsCast::dyn_into::<web_sys::HtmlCanvasElement>(element)?;
   let js_callback = wasm_bindgen::JsCast::unchecked_ref(listener.as_ref());
   ```
-  *Rationale:* Makes the origin of every method 100% grepable and searchable.
+  _Rationale:_ Makes the origin of every method 100% grepable and searchable.
 - **Prelude Exception:** Standard library prelude types (`Option`, `Result`,
   `String`, `Vec`, `Clone`, `Default`) remain unqualified.
 
 ### C. Hierarchical Error Architecture (`thiserror`)
+
 Errors must follow a clean hierarchy mirroring the module tree:
 
 ```text
@@ -158,6 +163,7 @@ Level 1 (Leaves):     window::Error            canvas::Error
 - **Zero Error Stuttering:** `window::Error`, NOT `window::WindowError`.
 
 ### D. Visibility as Gatekeeper
+
 - Submodules remain private by default (`mod submodule;`).
 - The parent module (`mod_name.rs`) and crate root (`lib.rs`) act as the
   **gatekeepers to visibility**. Only expose public entry points that callers
@@ -165,9 +171,10 @@ Level 1 (Leaves):     window::Error            canvas::Error
 - Avoid noisy, repetitive `pub(crate)` annotations throughout internal code.
 
 ### E. WebAssembly & Resource Efficiency Standards
+
 - **Push over Poll when idle:** Never run a `requestAnimationFrame` loop when
   the screen is static. Use DOM event listeners that consume 0% CPU when idle.
-- **Cache DOM lookups:** `document.get_element_by_id` must execute *once* on
+- **Cache DOM lookups:** `document.get_element_by_id` must execute _once_ on
   initialization. Never query the DOM during frame loops.
 - **Rich Callbacks:** Event callbacks must pass all metrics directly by value
   (e.g., `on_resize(|width, height, dpr)|`).
