@@ -1,0 +1,19 @@
+# Global Clippy configuration for crates under $HOME lacking their own.
+# Clippy recursively searches parent directories up to the filesystem root.
+
+# Complexity thresholds
+cognitive-complexity-threshold = 25
+
+# Standard identifier exceptions for doc markdown linting
+doc-valid-idents = [
+  "JavaScript",
+  "WebAssembly",
+  "Wasm",
+  "HTML",
+  "CSS",
+  "DOM",
+  "DPR",
+  "JSON",
+  "API",
+  "URL",
+]
