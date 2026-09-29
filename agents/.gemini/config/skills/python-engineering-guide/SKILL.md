@@ -16,14 +16,10 @@ standards for Python development across projects in this environment.
 
 ## 1. Mechanical Formatter & Linter (`ruff.toml`)
 
-All Python formatting and linting is mechanically governed by Ruff:
-
-- **Indentation:** 2 spaces (`indent-width = 2`, `indent-style = "space"`).
-- **Line Width:** 80 characters (`line-length = 80`).
-- **Docstrings:** Google docstring convention (`convention = "google"`), wrapped
-  at 72 characters (`docstring-code-line-length = 72`).
-- **Target Version:** Modern Python (`target-version = "py312"`).
-- **Tooling:** Run `ruff format` and `ruff check --fix`.
+All Python formatting (2-space indents, 80-column lines, quote styles, import
+sorting) is enforced 100% mechanically by Ruff (`ruff format`,
+`ruff check --fix`) via Antigravity disk hooks and Git pre-commit hooks. Do not
+waste tokens or reasoning on manual whitespace layout.
 
 ---
 

@@ -38,20 +38,10 @@ compiler linting, and architectural principles for Rust codebases.
 
 ## 2. Tier 1: Mechanical Formatter (`.rustfmt.toml`)
 
-All code formatting is purely mechanical. Formatting debates are forbidden.
-
-### Core Configuration
-
-- **Indentation:** 2 spaces (`tab_spaces = 2`, `hard_tabs = false`).
-- **Line Width:** 80 columns (`max_width = 80`).
-- **Newlines:** Unix LF (`newline_style = "Unix"`).
-- **Edition:** Modern Rust (`edition = "2024"`).
-- **Import Ordering:** Standard library first, then external crates, then
-  internal modules (`group_imports = "StdExternalCrate"`).
-- **Binary Operators:** Multiline operators placed at the start of continuation
-  lines (`binop_separator = "Front"`).
-- **Reflow:** Nightly comment and string reflow (`wrap_comments = true`,
-  `format_strings = true`, `format_code_in_doc_comments = true`).
+All syntax layout (2 spaces, 80 columns, import sorting, comments reflow) is
+enforced 100% mechanically via `cargo +nightly fmt`, Antigravity `PostToolUse`
+hooks, and Git pre-commit hooks. Never spend tokens or reasoning on manual
+whitespace alignment.
 
 ---
 

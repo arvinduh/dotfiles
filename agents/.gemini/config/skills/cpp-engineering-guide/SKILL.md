@@ -16,16 +16,10 @@ invariants for C++ development across projects in this environment.
 
 ## 1. Mechanical Formatter (`.clang-format`)
 
-All C++ formatting is mechanically governed by the global `.clang-format` based
-on Google C++ style:
-
-- **Indentation:** 2 spaces (`IndentWidth: 2`, `TabWidth: 2`, `UseTab: Never`).
-- **Column Limit:** 80 characters (`ColumnLimit: 80`).
-- **Pointers & References:** Left-aligned (`PointerAlignment: Left`, e.g.,
-  `int* p`, `const std::string& ref`).
-- **Reflow:** Comment reflow enabled (`ReflowComments: true`).
-- **Includes:** Regrouped and case-sensitively sorted (`IncludeBlocks: Regroup`,
-  `SortIncludes: CaseSensitive`).
+All C++ formatting (2-space indents, 80-column line limit, left pointer
+alignment, include sorting) is enforced 100% mechanically by `.clang-format` via
+Antigravity disk hooks and Git pre-commit hooks. Do not waste reasoning on
+whitespace alignment.
 
 ---
 
