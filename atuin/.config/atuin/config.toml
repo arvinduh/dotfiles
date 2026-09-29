@@ -11,7 +11,7 @@ style = "compact"
 inline_height = 20
 show_preview = true
 show_help = false
-enter_accept = true          # Enter runs it; Tab edits it first
+enter_accept = true # Enter runs it; Tab edits it first
 
 # Start scoped to the current directory — usually what you want — then cycle
 # to global/session with Ctrl-R inside the picker.
@@ -21,7 +21,7 @@ search_mode = "fuzzy"
 
 # Do not record these, ever.
 history_filter = [
-  "^\\s",              # any command typed with a leading space
+  "^\\s",                                  # any command typed with a leading space
   "^curl .*(token|key|secret|password)",
   "^export .*(TOKEN|KEY|SECRET|PASSWORD)",
   "^.*API_KEY=",

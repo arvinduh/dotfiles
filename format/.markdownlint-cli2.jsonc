@@ -10,7 +10,7 @@
     "MD007": false, // ul-indent — Prettier controls nested list indentation
     "MD012": false, // no-multiple-blanks — Prettier collapses these
     "MD013": false, // line-length — Prettier's proseWrap wraps at 80 already,
-                    //   and tables/long URLs legitimately cannot be wrapped
+    //   and tables/long URLs legitimately cannot be wrapped
     "MD030": false, // list-marker-space — Prettier normalizes
     "MD035": false, // hr-style — Prettier normalizes
     "MD048": false, // code-fence-style — Prettier normalizes
@@ -18,12 +18,12 @@
     "MD050": false, // strong-style — Prettier normalizes
 
     // --- Structure: kept on, these are the ones worth having ---------------
-    "MD003": { "style": "atx" },        // # headings, never underline style
+    "MD003": { "style": "atx" }, // # headings, never underline style
     "MD024": { "siblings_only": true }, // dup headings ok under different parents
-    "MD029": { "style": "ordered" },    // 1. 2. 3. not 1. 1. 1.
-    "MD033": false,                     // inline HTML — sometimes necessary
-    "MD041": false                      // first line need not be a top heading
-  }
+    "MD029": { "style": "ordered" }, // 1. 2. 3. not 1. 1. 1.
+    "MD033": false, // inline HTML — sometimes necessary
+    "MD041": false, // first line need not be a top heading
+  },
 }
 // No "globs" or "ignores" keys on purpose. markdownlint-cli2 APPENDS globs to
 // whatever path it was given, so `globs: ["**/*.md"]` turns "lint this one
