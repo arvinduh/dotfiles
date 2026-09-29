@@ -26,8 +26,16 @@ return {
       -- so it follows whatever theme gets chosen later.
     },
     keys = {
-      { "<leader>um", "<cmd>Markview toggle<cr>", desc = "Toggle markdown preview" },
-      { "<leader>uM", "<cmd>Markview splitToggle<cr>", desc = "Markdown preview in a split" },
+      {
+        "<leader>um",
+        "<cmd>Markview toggle<cr>",
+        desc = "Toggle markdown preview",
+      },
+      {
+        "<leader>uM",
+        "<cmd>Markview splitToggle<cr>",
+        desc = "Markdown preview in a split",
+      },
     },
   },
 }

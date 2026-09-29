@@ -18,8 +18,18 @@ map("x", "p", [["_dP]], { desc = "Paste without yanking selection" })
 -- ---- Movement ---------------------------------------------------------------
 -- Move by screen line when wrapped, unless a count was given (so 5j still
 -- works with relativenumber).
-map({ "n", "x" }, "j", "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
-map({ "n", "x" }, "k", "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
+map(
+  { "n", "x" },
+  "j",
+  "v:count == 0 ? 'gj' : 'j'",
+  { expr = true, silent = true }
+)
+map(
+  { "n", "x" },
+  "k",
+  "v:count == 0 ? 'gk' : 'k'",
+  { expr = true, silent = true }
+)
 
 -- Keep the cursor centred on big jumps and search hops.
 map("n", "<C-d>", "<C-d>zz")
@@ -54,8 +64,12 @@ map("n", "J", "mzJ`z", { desc = "Join, keep cursor" })
 
 -- ---- Diagnostics ------------------------------------------------------------
 map("n", "<leader>e", vim.diagnostic.open_float, { desc = "Line diagnostics" })
-map("n", "[d", function() vim.diagnostic.jump({ count = -1 }) end, { desc = "Prev diagnostic" })
-map("n", "]d", function() vim.diagnostic.jump({ count = 1 }) end, { desc = "Next diagnostic" })
+map("n", "[d", function()
+  vim.diagnostic.jump({ count = -1 })
+end, { desc = "Prev diagnostic" })
+map("n", "]d", function()
+  vim.diagnostic.jump({ count = 1 })
+end, { desc = "Next diagnostic" })
 
 -- ---- Quickfix ---------------------------------------------------------------
 map("n", "[q", "<cmd>cprev<cr>", { desc = "Prev quickfix" })

@@ -24,7 +24,13 @@ return {
       },
     },
     keys = {
-      { "<leader>?", function() require("which-key").show({ global = false }) end, desc = "Buffer keymaps" },
+      {
+        "<leader>?",
+        function()
+          require("which-key").show({ global = false })
+        end,
+        desc = "Buffer keymaps",
+      },
     },
   },
 
@@ -36,7 +42,9 @@ return {
     opts = {
       indent = { char = "│" },
       scope = { enabled = true, show_start = false, show_end = false },
-      exclude = { filetypes = { "help", "lazy", "mason", "oil", "checkhealth" } },
+      exclude = {
+        filetypes = { "help", "lazy", "mason", "oil", "checkhealth" },
+      },
     },
   },
 }

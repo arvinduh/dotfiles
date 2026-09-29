@@ -10,12 +10,34 @@ return {
     opts = {
       ensure_installed = {
         -- your languages
-        "python", "cpp", "c", "rust", "typescript", "tsx", "javascript",
+        "python",
+        "cpp",
+        "c",
+        "rust",
+        "typescript",
+        "tsx",
+        "javascript",
         -- data / docs — the ones you said you touch constantly
-        "markdown", "markdown_inline", "json", "jsonc", "yaml", "toml",
+        "markdown",
+        "markdown_inline",
+        "json",
+        "jsonc",
+        "yaml",
+        "toml",
         -- infra
-        "lua", "luadoc", "vim", "vimdoc", "bash", "query", "regex",
-        "diff", "gitcommit", "gitignore", "dockerfile", "cmake", "make",
+        "lua",
+        "luadoc",
+        "vim",
+        "vimdoc",
+        "bash",
+        "query",
+        "regex",
+        "diff",
+        "gitcommit",
+        "gitignore",
+        "dockerfile",
+        "cmake",
+        "make",
       },
       auto_install = true,
       highlight = {

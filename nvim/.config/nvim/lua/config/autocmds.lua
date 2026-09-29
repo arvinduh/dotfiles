@@ -84,7 +84,10 @@ vim.api.nvim_create_autocmd("BufWritePre", {
     if ev.match:match("^%w%w+://") then
       return
     end
-    vim.fn.mkdir(vim.fn.fnamemodify(vim.uv.fs_realpath(ev.match) or ev.match, ":p:h"), "p")
+    vim.fn.mkdir(
+      vim.fn.fnamemodify(vim.uv.fs_realpath(ev.match) or ev.match, ":p:h"),
+      "p"
+    )
   end,
 })
 
@@ -94,7 +97,12 @@ vim.api.nvim_create_autocmd("FileType", {
   pattern = { "help", "man", "qf", "checkhealth", "lspinfo", "startuptime" },
   callback = function(ev)
     vim.bo[ev.buf].buflisted = false
-    vim.keymap.set("n", "q", "<cmd>close<cr>", { buffer = ev.buf, silent = true })
+    vim.keymap.set(
+      "n",
+      "q",
+      "<cmd>close<cr>",
+      { buffer = ev.buf, silent = true }
+    )
   end,
 })
 

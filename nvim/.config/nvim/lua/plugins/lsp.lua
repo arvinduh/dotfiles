@@ -44,7 +44,12 @@ return {
         group = vim.api.nvim_create_augroup("dot_lsp_attach", { clear = true }),
         callback = function(ev)
           local function map(keys, fn, desc, mode)
-            vim.keymap.set(mode or "n", keys, fn, { buffer = ev.buf, desc = "LSP: " .. desc })
+            vim.keymap.set(
+              mode or "n",
+              keys,
+              fn,
+              { buffer = ev.buf, desc = "LSP: " .. desc }
+            )
           end
           local fzf = require("fzf-lua")
 
@@ -55,7 +60,12 @@ return {
           map("gD", vim.lsp.buf.declaration, "Declaration")
           map("K", vim.lsp.buf.hover, "Hover")
           map("<leader>cr", vim.lsp.buf.rename, "Rename")
-          map("<leader>ca", vim.lsp.buf.code_action, "Code action", { "n", "v" })
+          map(
+            "<leader>ca",
+            vim.lsp.buf.code_action,
+            "Code action",
+            { "n", "v" }
+          )
           map("<leader>cs", fzf.lsp_document_symbols, "Document symbols")
           map("<leader>cS", fzf.lsp_live_workspace_symbols, "Workspace symbols")
           map("<C-s>", vim.lsp.buf.signature_help, "Signature help", "i")
@@ -63,7 +73,10 @@ return {
           local client = vim.lsp.get_client_by_id(ev.data.client_id)
           if client and client:supports_method("textDocument/inlayHint") then
             map("<leader>ch", function()
-              vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = ev.buf }), { bufnr = ev.buf })
+              vim.lsp.inlay_hint.enable(
+                not vim.lsp.inlay_hint.is_enabled({ bufnr = ev.buf }),
+                { bufnr = ev.buf }
+              )
             end, "Toggle inlay hints")
           end
         end,
@@ -135,7 +148,10 @@ return {
 
       vim.lsp.config("yamlls", {
         settings = {
-          yaml = { schemaStore = { enable = false, url = "" }, schemas = require("schemastore").yaml.schemas() },
+          yaml = {
+            schemaStore = { enable = false, url = "" },
+            schemas = require("schemastore").yaml.schemas(),
+          },
         },
       })
 
