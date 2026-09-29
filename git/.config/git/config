@@ -14,6 +14,7 @@
   pager = delta
   autocrlf = input          # WSL: never write CRLF into the repo
   excludesfile = ~/.config/git/ignore
+  hooksPath = ~/.config/git/hooks
   fsmonitor = true
   untrackedCache = true
 
