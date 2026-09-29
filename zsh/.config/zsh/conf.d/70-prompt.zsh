@@ -6,8 +6,7 @@
 
 for _p in \
   "${XDG_DATA_HOME:-$HOME/.local/share}/zsh/plugins/powerlevel10k/powerlevel10k.zsh-theme" \
-  /usr/share/zsh-theme-powerlevel10k/powerlevel10k.zsh-theme
-do
+  /usr/share/zsh-theme-powerlevel10k/powerlevel10k.zsh-theme; do
   if [[ -r "$_p" ]]; then
     source "$_p"
     break

@@ -10,20 +10,20 @@ if [[ -n "$WSL_DISTRO_NAME" ]] || grep -qi microsoft /proc/version 2>/dev/null; 
   unset _win32
 
   # Clipboard. `pbcopy`/`pbpaste` names so the same muscle memory works here.
-  if (( $+commands[clip.exe] )); then
+  if (($ + commands[clip.exe])); then
     alias pbcopy='clip.exe'
     alias pbpaste='powershell.exe -NoProfile -Command Get-Clipboard | tr -d "\r"'
   fi
 
   # Open a path or URL with the Windows default handler.
-  if (( $+commands[wslview] )); then
+  if (($ + commands[wslview])); then
     alias open='wslview'
-  elif (( $+commands[explorer.exe] )); then
+  elif (($ + commands[explorer.exe])); then
     open() { explorer.exe "$(wslpath -w "${1:-.}")"; }
   fi
 
   # Jump to the Windows home directory.
-  if (( $+commands[powershell.exe] )); then
+  if (($ + commands[powershell.exe])); then
     export WINHOME="$(wslpath "$(powershell.exe -NoProfile -Command '$env:USERPROFILE' 2>/dev/null | tr -d '\r')" 2>/dev/null)"
     [[ -d "$WINHOME" ]] && alias cdwin='cd "$WINHOME"' || unset WINHOME
   fi
