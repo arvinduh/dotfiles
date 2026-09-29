@@ -44,6 +44,15 @@ $Map = @(
     @{ Target = "$env:USERPROFILE\.prettierrc"            ; Source = 'format\.prettierrc' }
     @{ Target = "$env:USERPROFILE\.taplo.toml"            ; Source = 'format\.taplo.toml' }
     @{ Target = "$env:USERPROFILE\.markdownlint-cli2.jsonc"; Source = 'format\.markdownlint-cli2.jsonc' }
+    @{ Target = "$env:USERPROFILE\.clippy.toml"           ; Source = 'format\.clippy.toml' }
+
+    # Antigravity agent directives, skills, and lifecycle hooks
+    @{ Target = "$env:USERPROFILE\.gemini\config\AGENTS.md" ; Source = 'agents\.gemini\config\AGENTS.md' }
+    @{ Target = "$env:USERPROFILE\.gemini\config\skills"   ; Source = 'agents\.gemini\config\skills' }
+    @{ Target = "$env:USERPROFILE\.gemini\config\hooks.json"; Source = 'agents\.gemini\config\hooks.json' }
+
+    # Git hooks
+    @{ Target = "$env:USERPROFILE\.config\git\hooks\pre-commit"; Source = 'git\.config\git\hooks\pre-commit' }
 
     # ruff, stylua and bat have real user-level config slots and are immune to
     # the parent-search problem above.
