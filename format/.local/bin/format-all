@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+# Formats all tracked git files or directory files using format-file.
+set -euo pipefail
+
+target_dir="${1:-.}"
+
+# Ensure format-file is reachable
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+export PATH="$SCRIPT_DIR:$PATH"
+
+if git -C "$target_dir" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  # Format all tracked files in git repository
+  root_dir="$(git -C "$target_dir" rev-parse --show-toplevel)"
+  while IFS= read -r rel_file; do
+    full_path="$root_dir/$rel_file"
+    if [[ -f "$full_path" ]]; then
+      format-file "$full_path"
+    fi
+  done < <(git -C "$root_dir" ls-files)
+else
+  find "$target_dir" -type f ! -path '*/.*/*' -exec format-file {} +
+fi
