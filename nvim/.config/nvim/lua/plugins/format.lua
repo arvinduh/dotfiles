@@ -76,7 +76,6 @@ return {
         lua = { "stylua" },
         sh = { "shfmt" },
         bash = { "shfmt" },
-        zsh = { "shfmt" },
         ["_"] = { "trim_whitespace" }, -- fallback for everything else
       },
 
