@@ -16,7 +16,7 @@ $ErrorActionPreference = 'Stop'
 $repo = Split-Path -Parent $PSScriptRoot
 
 if (-not (Get-Command nvim -ErrorAction SilentlyContinue)) {
-  Write-Host "nvim is not on PATH — see docs/windows.md" -ForegroundColor Red
+  Write-Host "nvim is not on PATH — see docs/setup.md#windows" -ForegroundColor Red
   exit 1
 }
 

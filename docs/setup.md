@@ -230,6 +230,34 @@ git clone https://github.com/microsoft/vcpkg ~/.local/share/vcpkg
 cmake -B build -DCMAKE_TOOLCHAIN_FILE=~/.local/share/vcpkg/scripts/buildsystems/vcpkg.cmake
 ```
 
+## WSL
+
+Disabling Windows `PATH` injection takes interactive zsh startup from **~1.6 s
+to ~0.10 s**. It is the largest single win here: every `/mnt/c` entry on `PATH`
+is a 9p round-trip on _every_ command lookup, and Windows `node`/`npm` shadow
+the Linux ones — so `npm install` silently runs the Windows binary against your
+Linux files.
+
+```bash
+sudo tee -a /etc/wsl.conf >/dev/null <<'WSLCONF'
+
+[interop]
+enabled = true
+appendWindowsPath = false
+WSLCONF
+```
+
+Then `wsl --shutdown` from PowerShell. Interop still works — `60-wsl.zsh` adds
+`/mnt/c/Windows/System32` back explicitly, so `clip.exe` and `explorer.exe` keep
+working.
+
+The terminal font is rendered by Windows, not WSL, so install it on the Windows
+side or the prompt's glyphs will be broken boxes:
+
+```powershell
+winget install DEVCOM.JetBrainsMonoNerdFont
+```
+
 ## Windows
 
 Native Windows runs the same Neovim config and the same `format/` globals. It
@@ -238,7 +266,7 @@ to look like the WSL side.
 
 | Decision                             | Why                                                                                                                                                                                                                                                                                                                                                           |
 | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Two checkouts, one repo, git as sync | Pointing Windows at the WSL checkout through `\\wsl$` means 9p — the same protocol whose `PATH` cost is documented in the README. Neovim reading its config and 20+ plugins over it on every launch would reintroduce exactly that                                                                                                                            |
+| Two checkouts, one repo, git as sync | Pointing Windows at the WSL checkout through `\\wsl$` means 9p — the same protocol whose `PATH` cost is documented under [WSL](#wsl). Neovim reading its config and 20+ plugins over it on every launch would reintroduce exactly that                                                                                                                        |
 | PowerShell 7, not 5.1                | `$ErrorView` defaults to `ConciseView` (5.1 spends six lines saying a file does not exist), and PSReadLine is new enough for `PredictiveIntelliSense`. The 7.x profile is a different file from the 5.1 one, so installing it retires the old profile with nothing to migrate                                                                                 |
 | starship, not oh-my-posh             | oh-my-posh's value is its theme library and Windows segments, which is what a minimal prompt does not need. Neither matches p10k, which runs in-process with a `gitstatusd` daemon; both spawn a process per render                                                                                                                                           |
 | The prompt is not shared             | p10k is zsh-only. `windows/starship.toml` is deliberately a single line with no OS icon and no right prompt, so the two machines are not mistakable                                                                                                                                                                                                           |
