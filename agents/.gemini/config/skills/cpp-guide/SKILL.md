@@ -1,5 +1,5 @@
 ---
-name: cpp-engineering-guide
+name: cpp-guide
 description: >-
   Comprehensive guide for writing, reviewing, and refactoring C++ code. Enforces
   Google C++ Style Guide standards, 2-space/80-col formatting,

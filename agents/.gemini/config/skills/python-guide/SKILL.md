@@ -1,5 +1,5 @@
 ---
-name: python-engineering-guide
+name: python-guide
 description: >-
   Comprehensive guide for writing, reviewing, and refactoring Python code.
   Enforces Google Python Style Guide standards, Ruff formatting (2-space,

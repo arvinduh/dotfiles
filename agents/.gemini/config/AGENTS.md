@@ -213,7 +213,7 @@ navigation (`rust-analyzer`, `clangd`, language servers).
 Before generating, modifying, or reviewing code in specialized domains, agents
 MUST inspect and follow the corresponding skill:
 
-- **Rust Projects:** Read and follow the `rust-engineering-guide` skill.
-- **C++ Projects:** Read and follow the `cpp-engineering-guide` skill.
-- **Python Projects:** Read and follow the `python-engineering-guide` skill.
+- **Rust Projects:** Read and follow the `rust-guide` skill.
+- **C++ Projects:** Read and follow the `cpp-guide` skill.
+- **Python Projects:** Read and follow the `python-guide` skill.
 - **Multi-Agent / Worktree Workflows:** Read and follow the `orchestrate` skill.

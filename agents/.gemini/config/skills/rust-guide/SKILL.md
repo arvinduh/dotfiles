@@ -1,5 +1,5 @@
 ---
-name: rust-engineering-guide
+name: rust-guide
 description: >-
   Comprehensive 3-Tier specification for writing, refactoring, and reviewing
   Rust code. Enforces Google-adapted 2-space/80-col formatting, explicit module
