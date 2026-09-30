@@ -6,7 +6,7 @@
 # surprised.
 
 # ---- Listing: eza -----------------------------------------------------------
-if (($ + commands[eza])); then
+if (( $+commands[eza] )); then
   alias ls='eza --group-directories-first --icons=auto'
   alias ll='eza -l  --group-directories-first --icons=auto --git --time-style=long-iso'
   alias la='eza -la --group-directories-first --icons=auto --git --time-style=long-iso'
@@ -19,8 +19,8 @@ else
 fi
 
 # ---- Viewing: bat -----------------------------------------------------------
-if (($ + commands[batcat])); then alias bat='batcat'; fi # Debian binary name
-if (($ + commands[bat] || $ + commands[batcat])); then
+if (( $+commands[batcat] )); then alias bat='batcat'; fi # Debian binary name
+if (( $+commands[bat] || $+commands[batcat] )); then
   alias cat='bat --paging=never'
   alias catp='bat' # paged
   export MANPAGER="sh -c 'col -bx | bat -l man -p'"
@@ -29,7 +29,7 @@ fi
 
 # ---- Search -----------------------------------------------------------------
 # fd/rg intentionally keep their own names. `grep` stays GNU grep.
-if (($ + commands[fdfind])); then alias fd='fdfind'; fi
+if (( $+commands[fdfind] )); then alias fd='fdfind'; fi
 alias grep='grep --color=auto'
 
 # ---- Safety nets ------------------------------------------------------------
@@ -56,7 +56,7 @@ alias gpl='git pull'
 alias gco='git checkout'
 alias gsw='git switch'
 alias gb='git branch'
-(($ + commands[lazygit])) && alias lg='lazygit'
+(( $+commands[lazygit] )) && alias lg='lazygit'
 
 # ---- Editor -----------------------------------------------------------------
 alias v='nvim'
@@ -76,10 +76,10 @@ alias vrc='nvim "$XDG_CONFIG_HOME/nvim/init.lua"'
 alias reload='exec zsh'
 
 # ---- Modern replacements (only if installed) --------------------------------
-(($ + commands[btop])) && alias top='btop'
-(($ + commands[duf])) && alias df='duf'
-(($ + commands[procs])) && alias ps='procs'
-(($ + commands[tldr])) && alias help='tldr'
+(( $+commands[btop] )) && alias top='btop'
+(( $+commands[duf] )) && alias df='duf'
+(( $+commands[procs] )) && alias ps='procs'
+(( $+commands[tldr] )) && alias help='tldr'
 
 # ---- Functions --------------------------------------------------------------
 
