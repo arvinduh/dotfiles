@@ -18,10 +18,13 @@ Scope: the issue's "Files" list. If the change forces an edit outside it, stop
 and report instead of making it.
 
 First command: `git switch -c <type>/<slug>`. Work only in your worktree.
-Commits: Conventional Commits, one logical change each. Before each commit run
-the fast check: <build + format check>. Push after every commit; open a draft
-PR titled "<type>(<scope>): <summary>" with "Fixes #<N>" in the body on the
-first push. Never amend or force-push a pushed commit; add a commit.
+Commits: strictly follow AGENTS.md §4. Target <= 50 lines of net diff per
+commit (excluding lockfiles and test assets). Follow incremental progression:
+types/errors -> private logic/helpers -> gatekeeper -> caller/tests. Mandatory
+scope in Conventional Commit format: `<type>(<scope>): <summary>`. Before each
+commit run the fast check: <build + format check>. Push after every commit;
+open a draft PR titled "<type>(<scope>): <summary>" with "Fixes #<N>" in the
+body on the first push. Never amend or force-push a pushed commit; add a commit.
 Do not report per commit.
 
 Before finishing run the full gate: <repo's full presubmit commands>. A
@@ -49,8 +52,10 @@ code. Review it skeptically; a pass you cannot defend is a failure.
 1. Check out the PR head in its own worktree. Run the full gate yourself:
    <commands>. Report each result.
 2. Check every acceptance criterion in the issue against the diff.
-3. Read `git log --stat origin/<default>..HEAD`: each commit is one idea and
-   its message matches its diff.
+3. Read `git log --stat origin/<default>..HEAD`: audit each commit against
+   AGENTS.md §4. Verify <= 50 net lines per non-mechanical commit, mandatory
+   scope format, and incremental progression. Request changes if a commit
+   bundles multiple logical steps or exceeds the diff target without justification.
 4. Hunt for: edge cases, platform-specific paths (#[cfg], Windows paths),
    compatibility breaks in config/CLI/output, dead code the diff left behind,
    speculative code nobody calls, missing docs.

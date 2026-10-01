@@ -130,10 +130,12 @@ branch and open a PR, and authorizes the lead to merge PRs that meet §6. Nobody
 pushes the default branch directly. Workers do not check in per commit; they
 report once, when the PR is ready.
 
-**Commits.** One logical change each, Conventional Commits, fast check (build
-plus format) before each. The full gate runs once before the PR is marked ready
-and again in QA. The squash merge makes the issue, not the commit, the unit of
-`git bisect`, so commits exist for the reviewer.
+**Commits.** Every commit on a PR branch must strictly comply with `AGENTS.md`
+§4. Target **<= 50 lines of net diff** per commit (excluding lockfiles and test
+assets). Mandatory `<type>(<scope>): <summary>` format. Follow incremental
+progression (types/errors -> private logic -> entry point -> caller / tests). A
+fast check (build plus format) runs before each commit. The full gate runs once
+before the PR is marked ready and again in QA.
 
 ## 5. QA
 
@@ -142,9 +144,10 @@ one-line or typo fixes.
 
 QA is a **separate agent that did not write the code**, dispatched with the QA
 template. It runs the full gate itself, checks the diff against the issue's
-`Done` list, checks each commit is one idea, reverts the code under each new
-test to see it fail, and independently verifies the one worker claim that
-matters.
+`Done` list, audits commits against `AGENTS.md` §4 (<= 50 net lines outside
+mechanical sweeps, mandatory scopes, incremental progression), reverts the code
+under each new test to see it fail, and independently verifies the one worker
+claim that matters.
 
 - **Debate, don't rubber-stamp.** Relay concrete objections to the worker and
   iterate until both converge on the best solution, not merely an acceptable
