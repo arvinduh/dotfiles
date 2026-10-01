@@ -80,17 +80,11 @@ context pollution.
 
 **Do not add anything until it is immediately needed.**
 
-### A. Visibility (Module Files as Gatekeepers)
+### A. Visibility
 
-- Avoid noisy, repetitive `pub(crate)` annotations throughout internal code.
-- Items inside submodules can use standard `pub` where access within the module
-  tree is needed.
-- The parent module file (`mod_name.rs`) and the crate root (`lib.rs`) act as
-  the **gatekeepers to visibility**: an item is only accessible to the rest of
-  the application if `mod_name.rs` explicitly exposes it.
-- Submodules remain private by default (`mod submodule;`). Only expose public
-  entry points that external callers actively require in the current commit.
-- Struct fields must remain private unless external access is strictly required.
+- Everything is private by default. Expose only the entry points an external
+  caller requires in the current commit; the parent module decides what escapes.
+- Fields stay private unless external access is strictly required.
 
 ### B. Derives & Traits
 
@@ -174,26 +168,24 @@ after merge. The full protocol (dispatch, QA, merge, cleanup) lives in the
 ## 7. Documentation & Spec Standards
 
 Every item must be documented for clean generation and effortless IDE hover
-navigation (`rust-analyzer`, `clangd`, language servers).
+navigation. The language guide gives the syntax.
 
-### A. Module-Level Documentation (`//!`)
+### A. Module-Level Documentation
 
-- Every module file must begin with an inner doc comment providing:
+- Every module file must begin with a doc comment providing:
   1. A one-sentence summary of the module's core responsibility.
   2. A concise paragraph explaining its architectural boundary (what it owns vs.
      what neighboring layers own).
 
-### B. Item-Level Documentation (`///`)
+### B. Item-Level Documentation
 
 - **One-Sentence Summary:** The first line must be a concise, active-voice
   summary ending with a period.
 - **High Signal, Zero Fluff:** Do not write tautological docstrings that merely
   restate type signatures. Explain _intent_, _units_, or non-obvious
   constraints.
-- **Standard Doc Sections (Use only when applicable):**
-  - `# Side Effects`: Explicitly state mutations, I/O, or event listeners.
-  - `# Errors`: Explain specific conditions that return `Result::Err`.
-  - `# Panics`: Document any invariant violations that cause a panic.
+- **Sections only when applicable:** side effects (mutation, I/O, listeners),
+  errors (the conditions that produce each), panics (the violated invariant).
 
 ---
 
