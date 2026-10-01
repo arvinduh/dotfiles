@@ -7,9 +7,9 @@ These are harness and account realities, not preferences.
   test" means still working. Never dispatch a second agent into the same
   worktree to "finish" it; that puts two agents on one branch.
 - **To replace an agent, stop it first.** Stopping loses its context, not its
-  files. Before re-dispatching, inventory the worktree: `git status`, commits
-  ahead of the default branch, whether the branch is pushed. Unreported results
-  (measurements, review findings) are gone; re-derive them.
+  files. Before re-dispatching, inventory the worktree: `git status` and commits
+  not yet pushed (workers push every commit, so the draft PR is the rest).
+  Unreported results (measurements, review findings) are gone; re-derive them.
 - **A quiet CI monitor is not a green build.** Poll loops exit silently. Check
   the PR's checks directly before trusting a monitor that hasn't reported. In
   Claude Code cloud sessions, prefer PR activity subscriptions (events wake the

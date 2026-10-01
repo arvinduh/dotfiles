@@ -114,20 +114,19 @@ context pollution.
 
 ---
 
-## 4. Granular Commits (<= 50 Lines Net Diff)
+## 4. Granular Commits
 
 A clean git history enables effortless code review and robust `git bisect`.
 
 ### Rules
 
-- **50-Line Soft Ceiling:** Each commit should target **<= 50 lines of net
-  diff** (excluding auto-generated lockfiles or test assets). A mechanical sweep
-  (one lint, one rename, formatter output) is one commit however large: it is
-  one reviewable idea.
-- **Every Commit Must Build and Pass Gates:**
-  - Never commit a broken intermediate or "WIP" state.
-  - Every single commit must leave the repository in a fully compiling, tested,
-    and formatted state.
+- **One idea per commit.** Target **<= 50 lines of net diff** (excluding
+  lockfiles and test assets). A mechanical sweep (one lint, one rename,
+  formatter output) is one commit however large: it is one reviewable idea.
+- **Every commit on the default branch builds and passes the full gate.** Never
+  commit a broken intermediate or "WIP" state. On a PR branch that will be
+  squash-merged, each commit builds and is formatted; the full gate runs once
+  before review.
 - **Incremental Progression:**
   1. _Commit 1:_ Introduce the localized error variant or private data struct.
   2. _Commit 2:_ Implement the constructor or private helper logic.
@@ -209,10 +208,11 @@ navigation. The language guide gives the syntax.
   to do so.
 - **What counts as explicit instruction:** the user asking for the change to be
   committed or pushed; the user starting an orchestrated batch (workers then
-  commit and push their own feature branch); a cloud session whose task names a
-  branch to develop and push on. None of these authorizes committing to, pushing
-  to, or merging into the default branch; that always needs its own explicit
-  go-ahead.
+  commit and push their own feature branch, and the lead merges pull requests
+  that pass the `orchestrate` skill's merge conditions); a cloud session whose
+  task names a branch to develop and push on. None of these authorizes
+  committing or pushing directly to the default branch; that always needs its
+  own explicit go-ahead.
 
 ---
 

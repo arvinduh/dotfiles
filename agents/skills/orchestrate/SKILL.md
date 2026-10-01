@@ -2,181 +2,196 @@
 name: orchestrate
 description: >-
   Lead-orchestrator protocol for multi-agent software work — decompose into
-  issues, claim-then-verify on the tracker, dispatch workers into isolated git
-  worktrees, run an independent maker-checker QA review, merge, and clean up.
-  Use this whenever the user asks you to orchestrate, dispatch, parallelize, fan
-  out, "work through the backlog", run subagents or worktrees, act as
-  lead/orchestrator, babysit several PRs, or plan a multi-step change across a
-  repo — even if they never say "orchestrate".
+  GitHub issues, dispatch workers into isolated git worktrees, run an
+  independent QA review, merge, and clean up. Use this whenever the user asks
+  you to orchestrate, dispatch, parallelize, fan out, "work through the
+  backlog", run subagents or worktrees, act as lead, audit a repo for issues, or
+  babysit several PRs — even if they never say "orchestrate". Not for planning
+  or implementing a change yourself.
 ---
 
 # Orchestrate
 
-You are the **lead orchestrator**. You plan, dispatch, review, and merge. You do
-not implement.
+You are the **lead**. You decompose, dispatch, review, and merge. You do not
+implement.
 
 ## 0. Precedence
 
 This skill is the default process. The repository's `AGENTS.md`/`CLAUDE.md` (and
-any process doc it points to) wins on **repo facts**: presubmit commands,
-required CI check names, merge method, label names, ask-first lists. Read it
-before dispatching anything. A repo that agrees with this skill should not
-restate it; it should record only its facts and its deviations.
+any process doc it points to) wins on **repo facts**: gate commands, required CI
+checks, merge method, ask-first lists. Read it before dispatching anything. A
+repo that agrees with this skill records only its facts and its deviations.
 
 ## 1. Roles
 
-| Role         | Does                                                | Effort |
-| ------------ | --------------------------------------------------- | ------ |
-| Orchestrator | decompose, claim, dispatch, triage, merge, clean up | high   |
-| Worker       | implement one scoped issue in its own worktree      | medium |
-| QA reviewer  | independently audit a finished diff, then debate    | high   |
+| Role   | Does                                            |
+| ------ | ----------------------------------------------- |
+| Lead   | decompose, dispatch, triage, merge, clean up    |
+| Worker | implement one issue in its own worktree         |
+| QA     | independently audit a finished PR, then debate  |
+| Audit  | read-only sweep that turns findings into issues |
 
-Route by role, not by model. Where the harness exposes a model or effort knob
-per dispatch, set it higher for QA than for workers.
+Where the harness exposes a model or effort knob per dispatch, set it higher for
+QA than for workers.
 
-**The orchestrator does no implementation.** Do two things directly, and nothing
-else:
+**The lead writes no code.** It does bookkeeping (issues, labels, PRs, merges)
+and resolves textual merge conflicts (§6). "This one is trivial too" is the
+rationalization this rule exists to block.
 
-1. pure bookkeeping: labels, CI checks, merging an already-reviewed PR;
-2. resolving a merge conflict between two already-reviewed branches (§6).
+## 2. State lives in the repository
 
-"This one is trivial too" is the rationalization this rule exists to block.
-Anything you write yourself beyond those two still goes through QA (§5).
+GitHub is the only source of truth, and state is **derived, never stored**. No
+status labels, no plan file, no summary issue: a snapshot that looks
+authoritative goes stale.
 
-## 2. Task state: one source of truth
+| State   | Is                                                        |
+| ------- | --------------------------------------------------------- |
+| triage  | label `triage`: an unverified lead                        |
+| design  | label `design`: needs a conversation with the user        |
+| ready   | label `ready`, no assignee, no open blocker               |
+| blocked | an open native blocker (`gh issue edit --add-blocked-by`) |
+| doing   | assignee plus a draft PR                                  |
+| review  | the PR is marked ready                                    |
+| done    | closed by the merge (`Fixes #N`)                          |
 
-Default tracker: **GitHub issues with exactly one `status:*` label each**
-(`ready`, `blocked`, `design-phase`, `in-progress`, `in-review`), plus topical
-labels. Use a repo-local `.agents/tasks.md` only for a repo without an issue
-tracker. Never keep a second copy (a pinned summary issue, a plan file): a stale
-snapshot that looks authoritative is worse than none.
+Workers **push after every commit**, so the draft PR always shows real progress
+and a stopped agent loses nothing. The price: a pushed commit is never amended
+or force-pushed; a fix is a new commit. The squash merge hides that.
 
-- **Blocked** issues state `Blocked-by: #N` in their body. Labels go stale when
-  the blocker closes. Check the blocker before trusting the label, and unblock
-  with a comment saying why.
-- **Issue prose goes stale too.** Line counts, file:line references, "X is dead
-  code" claims are true only as of filing. Comments override the body.
-  Spot-check the premise before dispatching.
-- **Spin-offs** carry `Spun off from #N`.
+## 3. Issues
 
-## 3. Claim, then verify
+**The issue is the contract.** Every issue states:
 
-Two orchestrators can see the same `status:ready` issue. Labels have no
-compare-and-swap, so:
+```markdown
+## Goal
 
-1. Add `status:in-progress` and self-assign.
-2. Read the issue back. Not the sole assignee → abort, pick another.
-3. Only then create the worktree and dispatch.
+<one sentence>
 
-Branch names are `<type>/issue-<N>-<slug>`, so a double dispatch fails loudly at
-`git push`. Never run two orchestrators against one local clone; worktrees share
-one `.git/`.
+## Done
+
+- [ ] <observable acceptance criterion>
+
+## Files
+
+<paths in scope>
+
+## Not
+
+<what this issue deliberately leaves out>
+```
+
+- **Size.** One issue is one squash commit on the default branch: one idea,
+  independently mergeable, reviewable in one sitting. Split anything bigger into
+  sub-issues (`gh issue create --parent N`), with order expressed as blockers
+  (`--blocked-by N`), never as prose.
+- **Titles** are the eventual commit subject: `<type>(<scope>): <summary>`.
+- **Spin-offs.** Anyone who finds something out of scope searches for a
+  duplicate, then files it as `triage` with `Spun off from #N`. Nobody fixes it
+  in place.
+- **Triage.** Issue prose is a lead, not a fact: line numbers, "X is dead code",
+  and file lists are true only as of filing, and comments override the body.
+  Verify the premise, complete the template, then move `triage` to `ready` (or
+  `design`, or close it with the reason).
+- **Finding work.** When `ready` runs dry, or on request, dispatch Audit agents,
+  one axis each: dead code, test gaps, doc drift, lint debt, `TODO`s. Recurring
+  finding types become a lint or a test, not a recurring audit.
 
 ## 4. Dispatch
 
+1. `git worktree prune`, then list unblocked `ready` issues.
+2. **Claim**: self-assign. If someone else already holds it, pick another. Never
+   run two leads against one local clone; worktrees share one `.git/`.
+3. **Stop rules**, before dispatching:
+   - `design` issues go to the user. Do not reinterpret one to make it
+     implementable.
+   - New user-facing surface (command, flag, output format, config key): show
+     the user an example invocation and output, and get a yes first.
+   - Ask-first items in the repo's agent doc go to the user.
+4. **Dispatch** with the template in
+   [references/worker-prompt.md](references/worker-prompt.md).
+
 - **Isolation.** Every worker gets its own worktree. In Claude Code, pass
-  `isolation: "worktree"` to the Agent tool. Otherwise run
-  `git worktree add .worktrees/<branch> -b <branch> origin/<default>` and make
-  sure `.worktrees/` is git-ignored. Verify isolation; don't assume it.
-- **Parallelism.** Dispatch every unblocked, non-overlapping issue at once. Cap
-  concurrent agents at **about four**: the limit is the shared account rate
-  limit, not CPU, and a 429 kills the whole wave. Never run two workers whose
-  diffs will overlap (same module layout, same type) at the same time, even
-  without a `Blocked-by`.
-- **Prompt.** Every dispatch uses the template in
-  [references/worker-prompt.md](references/worker-prompt.md). It must state the
-  files in scope and say "if the change forces an edit outside these files, stop
-  and report".
-- **Stop rules, before dispatching anything:**
-  - `status:design-phase` issues need a design conversation with the user. Do
-    not implement, and do not reinterpret the issue to make it implementable.
-  - New user-facing surface (command, flag, output format, config key): show the
-    user an example invocation and example output and get a yes before the
-    worker finalizes. Never build-then-reveal.
-  - Ask-first items in the repo's agent doc go to the user.
+  `isolation: "worktree"` to the Agent tool; it starts on a throwaway
+  `worktree-agent-*` branch, which the worker replaces as its first command.
+  Otherwise run
+  `git worktree add .worktrees/<slug> -b <type>/<slug> origin/<default>` with
+  `.worktrees/` git-ignored.
+- **Branches** are `<type>/<slug>`: the Conventional Commit type, then the
+  fewest words that identify the change, one where possible (`fix/spawn`,
+  `feat/diagnostics`, `refactor/doctor`). Kebab-case only when one word is
+  ambiguous. No issue number, no agent name; the PR body carries `Fixes #N`.
+- **Parallelism.** Dispatch every unblocked, non-overlapping issue at once, up
+  to **about four** agents: the limit is the shared account rate limit, and a
+  429 kills the whole wave. Never run two workers whose diffs overlap, even
+  without a blocker between them.
 
-**Commit authority.** A user's request to run the batch authorizes workers to
-commit and push **their own feature branch** and open a PR. Nobody commits to or
-pushes the default branch.
+**Authority.** Starting a batch authorizes workers to commit and push their own
+branch and open a PR, and authorizes the lead to merge PRs that meet §6. Nobody
+pushes the default branch directly. Workers do not check in per commit; they
+report once, when the PR is ready.
 
-Commit hygiene: one logical change per commit, Conventional Commits, every
-commit builds and passes the gate. Aim for about 50 net lines per commit when a
-change decomposes (type, then logic, then wiring, then caller); a mechanical
-sweep (one lint or rename across the tree) is one commit however large.
+**Commits.** One logical change each, Conventional Commits, fast check (build
+plus format) before each. The full gate runs once before the PR is marked ready
+and again in QA. The squash merge makes the issue, not the commit, the unit of
+`git bisect`, so commits exist for the reviewer.
 
-## 5. Maker-checker QA
+## 5. QA
 
 Required for anything touching shared code or adding behavior. Skip only for
 one-line or typo fixes.
 
-The QA reviewer is a **separate agent that did not write the code**. Use the QA
-prompt in [references/worker-prompt.md](references/worker-prompt.md). It:
+QA is a **separate agent that did not write the code**, dispatched with the QA
+template. It runs the full gate itself, checks the diff against the issue's
+`Done` list, checks each commit is one idea, reverts the code under each new
+test to see it fail, and independently verifies the one worker claim that
+matters.
 
-1. runs the repo's full gate itself; it does not trust the worker's report;
-2. checks the diff against the issue's acceptance criteria;
-3. hunts edge cases, compatibility breaks, dead code the diff left behind,
-   speculative code (YAGNI), and missing docs;
-4. for every new test, reverts the code under test and confirms the test fails,
-   because a test never seen failing proves nothing;
-5. independently verifies the **one worker claim that matters** ("output is
-   byte-identical" → read the `#[cfg]`; "no golden file moved" → diff them).
+- **Debate, don't rubber-stamp.** Relay concrete objections to the worker and
+  iterate until both converge on the best solution, not merely an acceptable
+  one.
+- **Encode new standards.** A violation no existing rule covers becomes a lint
+  or test (preferred) or a line in the repo's style doc, in the same PR or a
+  spin-off.
 
-**Debate, don't rubber-stamp.** Relay concrete objections to the worker and
-iterate until both converge on the best solution, not merely an acceptable one.
+All agents share one GitHub identity, so a formal "Approve" is impossible. QA's
+verdict is a PR comment.
 
-**Scope triage**, for anyone who finds something out of scope: if it still fits
-the issue as filed, fold it in; otherwise file a new issue (labels,
-`Spun off from #N`). Audit-shaped issues are expected to spawn several.
+## 6. Merge
 
-**Encode new standards.** If QA finds a violation no existing rule covers,
-fixing the PR is not enough. Promote the rule into a lint or test (preferred) or
-the repo's style doc in the same PR, or file one scoped follow-up.
+The lead merges on its own when all of these hold:
 
-All subagents share one GitHub identity, so a formal "Approve" is impossible. QA
-leaves written findings as a PR comment; real sign-off is the user's unless the
-repo's agent doc delegates routine merges.
+- required checks are green on the PR's current head;
+- QA's latest verdict is approve, or the change was trivial enough to skip §5;
+- conversations are resolved.
 
-## 6. Merge and conflicts
+Use the repo's merge method (default: squash via the PR, delete the branch). The
+squash subject is the issue title.
 
-Merge only when all of these hold:
-
-- the repo's required checks are green on the PR's current head;
-- conversations are resolved;
-- QA signed off, or the change was trivial enough to skip §5;
-- the user approved, or the repo delegates routine merges.
-
-Use the repo's merge method (default: squash via the PR, delete the branch).
-
-**Conflicts.** Merge the default branch into the PR branch in its worktree, then
-classify the resolution:
+**Conflicts.** Merge the default branch into the PR branch in its worktree:
 
 - **Textual** (adjacent lines, no shared behavior): resolve it yourself.
 - **Semantic** (both sides changed the same behavior or type): this is new
-  implementation. It goes back through §5, and you say so explicitly.
+  implementation. Send it back to a worker, then through §5.
 
 Re-run the full gate on the resolved tree before pushing.
 
-## 7. Cleanup: every merge, no exceptions
+## 7. Cleanup: every merge
 
 1. `git worktree remove <path>`. Check `git status` first; use `--force` only
    for build residue.
-2. `git branch -d <branch>` (the remote branch was deleted at merge).
-3. `git worktree prune` at the start of each dispatch batch.
-4. Delete local scratch tied to the closed issue.
+2. `git branch -d <branch>`.
+3. Delete local scratch tied to the closed issue.
 
-If the repo allows it, share one `CARGO_TARGET_DIR` (or equivalent build cache)
-across worktrees: N worktrees otherwise means N multi-GB caches. The cost is
-build-lock waits between concurrent workers.
+If the repo allows it, share one build cache (`CARGO_TARGET_DIR`) across
+worktrees. The cost is build-lock waits between concurrent workers.
 
 ## 8. Operating subagents
 
 Read [references/operating-lessons.md](references/operating-lessons.md) before
-the first dispatch of a session. It covers background builds versus stuck
-agents, stopping agents safely, CI monitors that go quiet, and treating audit
-claims as leads.
+the first dispatch of a session. When a session teaches something new, add it
+there in the same session.
 
-## 9. Session report
+## 9. Report
 
-At each pause, report to the user, in this order: what merged; what is in review
-and waiting on whom; what is blocked and on what; what you want to dispatch
-next. Name issues and PRs as full links.
+At each pause, in this order: merged; in review; blocked, and on what; waiting
+on the user (`design`, ask-first); next dispatch. Full links for issues and PRs.
