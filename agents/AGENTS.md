@@ -123,17 +123,32 @@ A clean git history enables effortless code review and robust `git bisect`.
 - **One idea per commit.** Target **<= 50 lines of net diff** (excluding
   lockfiles and test assets). A mechanical sweep (one lint, one rename,
   formatter output) is one commit however large: it is one reviewable idea.
+  Where diff-size pre-commit hooks or automated checks are active, commits
+  exceeding 50 lines fail by default; use the escape hatch (`[sweep]` in the
+  commit message, `ALLOW_LARGE_COMMIT=1`, or `--no-verify`) only for legitimate
+  mechanical sweeps.
 - **Every commit on the default branch builds and passes the full gate.** Never
   commit a broken intermediate or "WIP" state. On a PR branch that will be
   squash-merged, each commit builds and is formatted; the full gate runs once
   before review.
-- **Incremental Progression:**
-  1. _Commit 1:_ Introduce the localized error variant or private data struct.
-  2. _Commit 2:_ Implement the constructor or private helper logic.
-  3. _Commit 3:_ Expose the entry point through the module gatekeeper.
-  4. _Commit 4:_ Connect the caller to consume it.
+- **Incremental Progression:** Break work into small, logically sequential
+  commits. Tests and complex logic must take multiple commits rather than being
+  bundled:
+  1. _Commit 1 (Repro / Spec Test):_ Introduce a failing test or test fixture
+     defining the expected behavior (if testable upfront), or declare localized
+     error variants / private data structs.
+  2. _Commit 2 (Helper Logic & Unit Tests):_ Implement private helper functions,
+     constructors, and their corresponding unit tests.
+  3. _Commit 3 (Gatekeeper / Public API):_ Expose the entry point and types
+     through the module gatekeeper (`pub(crate)` / `pub use`).
+  4. _Commit 4 (Caller Connection):_ Connect callers to consume the new entry
+     point (turning the baseline test green).
+  5. _Commit 5 (Integration & Edge-Case Tests):_ Add end-to-end integration
+     tests, regression fixtures, or negative test cases.
 - **Commit Message Standards (Conventional Commits):**
   - Format: `<type>(<scope>): <imperative summary>`
+  - Scope is **mandatory** (e.g. `fix(markdown):`, `refactor(config):`). Only
+    whole-repository mechanical sweeps may omit scope.
   - Types: `feat`, `fix`, `refactor`, `style`, `docs`, `test`, `chore`.
   - The summary must be lowercase, imperative mood, without a trailing period
     (e.g., `feat(canvas): add dpr scaling support`).
