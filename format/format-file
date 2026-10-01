@@ -3,9 +3,12 @@
 # C/C++, TOML, JSON, YAML, Markdown.
 # Supports CLI invocation ($1), git pre-commit, and PostToolUse hooks (stdin
 # JSON) from both Antigravity and Claude Code.
+# Lint findings the formatter could not fix go to stderr. As a Claude Code hook
+# the script then exits 2, which hands them to the agent that made the edit.
 set -euo pipefail
 
 file="${1:-}"
+claude=false
 
 # No argument: this is a PostToolUse hook. The two harnesses put the edited
 # path in different fields:
@@ -22,6 +25,7 @@ try:
   print(args.get('TargetFile') or tool_input.get('file_path') or '')
 except Exception:
   pass" 2>/dev/null || true)
+    [[ $payload != *'"tool_input"'* ]] || claude=true
     # PostToolUse hook expects empty JSON on stdout
     echo "{}"
   fi
@@ -34,11 +38,18 @@ fi
 have() { command -v "$1" >/dev/null 2>&1; }
 
 # Every formatter is optional: a missing one leaves the file as it was.
+findings=""
 case "$file" in
   *.rs)
     have rustfmt && { rustfmt +nightly "$file" || rustfmt "$file"; } ;;
   *.py)
-    have ruff && { ruff check --fix --quiet "$file"; ruff format "$file"; } ;;
+    if have ruff; then
+      ruff check --fix --quiet "$file" || true
+      ruff format "$file"
+      findings=$(ruff check --quiet --output-format concise "$file" 2>&1) ||
+        true
+    fi
+    ;;
   *.c | *.cc | *.cpp | *.cxx | *.h | *.hh | *.hpp | *.hxx)
     have clang-format && clang-format -i "$file" ;;
   *.toml)
@@ -60,3 +71,8 @@ case "$file" in
     fi
     ;;
 esac >/dev/null 2>&1 || true
+
+if [[ -n $findings ]]; then
+  echo "$findings" >&2
+  ! $claude || exit 2
+fi
