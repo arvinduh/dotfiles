@@ -1,0 +1,15 @@
+charliermarsh.ruff
+davidanson.vscode-markdownlint
+esbenp.prettier-vscode
+jeff-hykin.better-cpp-syntax
+llvm-vs-code-extensions.vscode-clangd
+mechatroner.rainbow-csv
+ms-python.debugpy
+ms-python.python
+ms-python.vscode-pylance
+ms-vscode-remote.remote-wsl
+myriad-dreamin.tinymist
+oderwat.indent-rainbow
+rust-lang.rust-analyzer
+tamasfe.even-better-toml
+tomoki1207.pdf

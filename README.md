@@ -1,118 +1,179 @@
 # dotfiles
 
-Personal dotfiles for **WSL2 / Linux** (zsh + Neovim) and **native Windows**
-(PowerShell 7 + Neovim).
+Personal config for **WSL2 / Linux** (zsh) and **native Windows** (PowerShell
+7), plus the agent setup shared by Claude Code and Antigravity. Editor: VS Code.
+Languages: Python, C/C++, Rust, and TOML / JSON / YAML / Markdown.
 
-Both environments share this repository, the Neovim configuration, and global
-code formatting rules, syncing across machines via git. Symlinks are managed by
-GNU Stow on Linux and `link.ps1` on Windows.
-
----
-
-## Bootstrap (WSL / Linux)
-
-```bash
-git clone https://github.com/arvinduh/dotfiles ~/.dotfiles
-cd ~/.dotfiles
-make packages
-make link
-```
-
-```bash
-# zsh plugins
-mkdir -p ~/.local/share/zsh/plugins
-git clone --depth=1 https://github.com/Aloxaf/fzf-tab ~/.local/share/zsh/plugins/fzf-tab
-git clone --depth=1 https://github.com/romkatv/powerlevel10k ~/.local/share/zsh/plugins/powerlevel10k
-
-# toolchains & CLI utilities
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --no-modify-path
-~/.cargo/bin/rustup component add rust-analyzer rustfmt clippy
-curl -LsSf https://astral.sh/uv/install.sh | sh
-uv tool install ruff basedpyright
-curl -sL https://github.com/boyter/scc/releases/latest/download/scc_Linux_x86_64.tar.gz | tar -xz -C ~/.local/bin scc
-
-# identity & default shell
-git config --file ~/.config/git/local user.name  "Your Name"
-git config --file ~/.config/git/local user.email "you@example.com"
-chsh -s "$(command -v zsh)"
-exec zsh
-```
-
-> **WSL Tip**: Disable Windows `PATH` injection in `/etc/wsl.conf` to drop shell
-> startup from ~1.6s to ~0.10s. See [docs/setup.md#wsl](docs/setup.md#wsl).
->
-> On first start, open `nvim` and allow Lazy, Mason, and treesitter to finish
-> installing.
-
----
-
-## Bootstrap (native Windows)
-
-1. Turn on **Developer Mode** once (_Settings → System → For developers_) to
-   allow unprivileged symlinks.
-2. If running Windows PowerShell 5.1, install PowerShell 7:
-   ```powershell
-   winget install --id Microsoft.PowerShell --exact
-   ```
-3. Open a **PowerShell 7 (`pwsh`)** console:
-   ```powershell
-   git clone https://github.com/arvinduh/dotfiles $env:USERPROFILE\.dotfiles
-   cd $env:USERPROFILE\.dotfiles
-
-   # Install packages
-   Get-Content windows\packages.txt |
-     ForEach-Object { ($_ -replace '#.*','').Trim() } | Where-Object { $_ } |
-     ForEach-Object { winget install --id $_ --exact --silent --accept-package-agreements --accept-source-agreements }
-
-   # Modules and language tools
-   Install-Module PSFzf -Scope CurrentUser -Force
-   uv tool install ruff basedpyright
-   uv tool update-shell
-   rustup component add rust-analyzer rustfmt clippy
-
-   # Symlink configs
-   .\windows\link.ps1
-   ```
-4. Reopen the terminal so `PATH` refreshes, then run `nvim` once until Mason and
-   treesitter parsers complete.
-
----
-
-## Daily
-
-| Action                        | Linux / WSL     | Windows (`pwsh`)             |
-| :---------------------------- | :-------------- | :--------------------------- |
-| **Apply / refresh symlinks**  | `make link`     | `.\windows\link.ps1`         |
-| **Run config test suite**     | `make check`    | `.\windows\check.ps1`        |
-| **Check links / diagnostics** | `make doctor`   | `.\windows\link.ps1 -DryRun` |
-| **Install new packages**      | `make packages` | Re-run package loop          |
-| **Code line count**           | `make audit`    | `scc`                        |
-
----
+`link.py` symlinks everything into place on Linux, Windows, and Claude Code
+cloud sessions from one table. It only links: it never installs anything, and
+moves any real file in the way to `<file>.bak-<timestamp>` first.
 
 ## Layout
 
 ```text
-agents/      Antigravity directives (AGENTS.md), skills, and lifecycle hooks
-atuin/       Shell history sync config
-bat/         bat syntax-highlighting pager config
-docs/        Design rationale (setup.md) and keybindings (cheatsheet.md)
-format/      Universal formatters (clang-format, prettier, ruff, rustfmt, taplo)
-git/         Git config, delta diff pager, global pre-commit formatting hook
-nvim/        Shared Neovim config (Lazy, Treesitter, LSP, Conform)
-scc/         Source code counter config
-tests/       Cross-platform headless Neovim test suite (run.lua)
-tmux/        Terminal multiplexer config
-wget/        wget cache redirect
-windows/     Native Windows configs (profile.ps1, starship.toml, link.ps1, check.ps1)
-zsh/         zsh environment (modular conf.d, p10k prompt)
+link.py      the link table and the script that applies it
+agents/      AGENTS.md and skills: the one copy, at ~/.agents
+claude/      Claude Code: CLAUDE.md (imports AGENTS.md), hooks
+gemini/      Antigravity hooks; its AGENTS.md and skills link to agents/
+vscode/      settings.json (VS Code and Antigravity) and extensions.txt
+format/      one global config per formatter, and format-file
+git/         git config and global ignore
+zsh/         zsh (conf.d/ modules, p10k prompt)
+atuin/ bat/  shell history sync; `cat` with syntax highlighting
+windows/     PowerShell profile, starship prompt, winget package list
 ```
 
----
+## Bootstrap: WSL / Linux
 
-## Documentation
+```bash
+git clone https://github.com/arvinduh/dotfiles ~/.dotfiles && cd ~/.dotfiles
+sed -e 's/#.*//' -e '/^\s*$/d' packages.txt | xargs sudo apt-get install -y
+python3 link.py
 
-- [docs/setup.md](docs/setup.md) — Architecture decisions, tool ownership,
-  formatting fallback logic, and WSL tuning.
-- [docs/cheatsheet.md](docs/cheatsheet.md) — Memorized keybindings and daily
-  shortcuts.
+# zsh plugins
+mkdir -p ~/.local/share/zsh/plugins && cd ~/.local/share/zsh/plugins
+git clone --depth=1 https://github.com/Aloxaf/fzf-tab
+git clone --depth=1 https://github.com/romkatv/powerlevel10k
+
+# toolchains and formatters
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --no-modify-path
+~/.cargo/bin/rustup component add rust-analyzer rustfmt clippy
+curl -LsSf https://astral.sh/uv/install.sh | sh
+uv tool install ruff basedpyright
+npm install -g prettier markdownlint-cli2 @taplo/cli
+
+# shell
+chsh -s "$(command -v zsh)" && exec zsh
+```
+
+On WSL, `appendWindowsPath = false` under `[interop]` in `/etc/wsl.conf` cuts
+shell startup from ~1.6s to ~0.1s.
+
+## Bootstrap: Windows
+
+Turn on **Developer Mode** once (_Settings → System → For developers_) so
+symlinks don't need an elevated shell. Then, in PowerShell 7 (`pwsh`):
+
+```powershell
+git clone https://github.com/arvinduh/dotfiles $env:USERPROFILE\.dotfiles
+cd $env:USERPROFILE\.dotfiles
+Get-Content windows\packages.txt | % { ($_ -replace '#.*','').Trim() } | ? { $_ } |
+  % { winget install --id $_ --exact --silent --accept-package-agreements --accept-source-agreements }
+Install-Module PSFzf -Scope CurrentUser -Force
+uv tool install ruff basedpyright; uv tool update-shell
+rustup component add rust-analyzer rustfmt clippy
+npm install -g prettier markdownlint-cli2 @taplo/cli
+uv run link.py
+```
+
+## VS Code
+
+`vscode/settings.json` is linked into both VS Code and Antigravity, so the two
+editors share one settings file and edits made in the Settings UI land in this
+repo. Turn off Settings Sync for Settings and Extensions so it doesn't fight the
+link. Antigravity can't use Microsoft's Settings Sync anyway.
+
+Extensions live in `vscode/extensions.txt`:
+
+```bash
+xargs -L1 code --install-extension < vscode/extensions.txt  # install
+code --list-extensions > vscode/extensions.txt              # save current set
+```
+
+On WSL, VS Code's user settings live on the Windows side, so run `link.py` from
+Windows for the editor.
+
+## Formatting
+
+VS Code formats on save. Agents get the same result through a post-edit hook:
+Claude Code (`claude/settings.json`) and Antigravity (`gemini/hooks.json`) both
+run `format-file` on every file an agent writes or edits. `format-file` picks
+the formatter by extension (rustfmt, ruff, clang-format, taplo, prettier, then
+markdownlint for Markdown), and every tool reads the global config linked from
+`format/`. A missing formatter leaves the file untouched.
+
+## Claude Code cloud sessions
+
+This repository is public so cloud sessions can clone it without credentials.
+Each cloud environment's Setup script is:
+
+```bash
+git clone -q --depth 1 https://github.com/arvinduh/dotfiles ~/.dotfiles
+python3 ~/.dotfiles/link.py --platform cloud
+```
+
+`--platform cloud` links only the entries marked `cloud` in `link.py`: the agent
+directives and skills, Claude's settings, and `format-file`.
+
+A SessionStart hook in `claude/settings.json` pulls and relinks at the start of
+every cloud session; outside the cloud it does nothing.
+
+## Keeping ~ clean
+
+Most clutter is a tool writing its own dot-folder into `~`. In order of
+preference:
+
+1. **Uninstall what you don't use.** Through winget, apt, uv or npm, so the
+   uninstall is clean.
+2. **Redirect it.** Many tools honor an environment variable that moves their
+   folder under `~/.config`, `~/.local/share` or `~/.cache`. Linux gets these
+   from `zsh/.zshenv`; [xdg-ninja](https://github.com/b3nj5m1n/xdg-ninja) lists
+   the variable for hundreds of tools. Windows GUI apps never read a shell
+   profile, so set the Windows ones once as user variables:
+
+   ```powershell
+   $vars = @{
+     IPYTHONDIR   = "$env:APPDATA\ipython"
+     MPLCONFIGDIR = "$env:APPDATA\matplotlib"
+     KERAS_HOME   = "$env:LOCALAPPDATA\keras"
+     LESSHISTFILE = "-"
+   }
+   $vars.GetEnumerator() | % { [Environment]::SetEnvironmentVariable($_.Key, $_.Value, 'User') }
+   ```
+
+3. **Accept it.** Some tools hard-code `~` (`.cargo`, `.rustup`, `.claude`,
+   `.gemini`, `.vscode-server`). Those are fine.
+
+Keep scratch files in a temp directory and code in one folder (`~/prj`), never
+loose in `~`.
+
+## PATH
+
+PATH is a list of directories searched in order; the first match wins. Clutter
+there means dead entries, duplicates, and the wrong version of a tool winning.
+
+**Linux / WSL.** `zsh/.zshenv` is the one place PATH is set, and
+`typeset -U path` drops duplicates. Add a directory there, never in a tool's
+installer prompt (answer "no" to "modify PATH?", or pass `--no-modify-path`). On
+WSL, set this in `/etc/wsl.conf` so the ~40 Windows directories stay out;
+`zsh/conf.d/60-wsl.zsh` adds back the few that matter (System32, VS Code):
+
+```ini
+[interop]
+appendWindowsPath = false
+```
+
+Inspect with `print -l $path`; spot dead entries with
+`for d in $path; [[ -d $d ]] || echo "missing: $d"`.
+
+**Windows.** PATH is the system list (needs admin) followed by your user list.
+Installers append to the user list and rarely clean up. Inspect it with
+`$env:Path -split ';'`. To drop dead and duplicate entries from your user list:
+
+```powershell
+$keep = [Environment]::GetEnvironmentVariable('Path', 'User') -split ';' |
+  ? { $_ -and (Test-Path $_) } | Select-Object -Unique
+[Environment]::SetEnvironmentVariable('Path', ($keep -join ';'), 'User')
+```
+
+Edit the system list by hand (Start → "Edit the system environment variables").
+Let winget, `uv tool update-shell` and rustup own their PATH entries rather than
+adding them yourself, and never change PATH in `profile.ps1`: it would only
+apply inside PowerShell, not to VS Code or other apps.
+
+## Daily
+
+| Action               | Linux / WSL                   | Windows (`pwsh`)           |
+| :------------------- | :---------------------------- | :------------------------- |
+| Update to newest     | `git pull && python3 link.py` | `git pull; uv run link.py` |
+| Preview link changes | `python3 link.py --dry-run`   | `uv run link.py --dry-run` |

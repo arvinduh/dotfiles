@@ -16,27 +16,26 @@ export DOTFILES="${DOTFILES:-$HOME/.dotfiles}"
 # typeset -U dedupes; $path and $PATH stay mirrored automatically.
 typeset -U path PATH
 path=(
-  "$HOME/.local/bin"        # uv, uv tool installs, scc, misc user binaries
+  "$HOME/.local/bin"        # uv, uv tool installs, format-file, misc binaries
   "$HOME/.cargo/bin"        # rustup / cargo
   $path
 )
 export PATH
 
 # ---- Core environment -------------------------------------------------------
-export EDITOR="nvim"
-export VISUAL="nvim"
+export EDITOR="code --wait"
+export VISUAL="code --wait"
 export PAGER="less"
 export LESS="-FRXi"         # one-screen quit, raw color, no clear, smart-case
 export LESSHISTFILE="-"     # stop less writing ~/.lesshst
 
 # ---- XDG-ify tools that would otherwise dirty $HOME -------------------------
-export WGETRC="$XDG_CONFIG_HOME/wgetrc"
 export GNUPGHOME="$XDG_DATA_HOME/gnupg"
 export CARGO_HOME="${CARGO_HOME:-$HOME/.cargo}"
 export RUSTUP_HOME="${RUSTUP_HOME:-$HOME/.rustup}"
 export DOCKER_CONFIG="$XDG_CONFIG_HOME/docker"
 export NPM_CONFIG_INIT_MODULE="$XDG_CONFIG_HOME/npm/config/npm-init.js"
 export NPM_CONFIG_CACHE="$XDG_CACHE_HOME/npm"
-export PYTHONSTARTUP="$XDG_CONFIG_HOME/python/pythonrc"
-export SCC_CONFIG_PATH="$XDG_CONFIG_HOME/scc/config"
-. "$HOME/.cargo/env"
+export IPYTHONDIR="$XDG_CONFIG_HOME/ipython"
+export KERAS_HOME="$XDG_DATA_HOME/keras"
+export PYTHON_HISTORY="$XDG_STATE_HOME/python_history" # Python 3.13+

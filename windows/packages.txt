@@ -2,9 +2,8 @@
 # Install with the loop in README.md; winget skips anything already installed,
 # so this is safe to re-run.
 #
-# This is the Windows half of packages.txt. Tools that Linux gets from apt but
-# Windows has no package manager entry for (stylua, prettier, the language
-# servers) are still owned by Mason — do not list them twice.
+# This is the Windows half of packages.txt. prettier and markdownlint-cli2 come
+# from npm on both sides (see README.md).
 
 # --- shell -------------------------------------------------------------------
 Microsoft.PowerShell             # PS 7.x — ConciseView errors, PSReadLine 2.3+
@@ -25,35 +24,18 @@ JesseDuffield.lazygit            # git TUI (note the capital D: --exact is case-
 GitHub.cli
 
 # --- editor ------------------------------------------------------------------
-# No tmux: there is no usable native port. Windows Terminal has panes.
-# PINNED. Must match the Neovim on the WSL side (apt ships 0.11.6), because
-# lazy-lock.json pins plugins but not the host. nvim-treesitter's master branch
-# breaks on 0.12. Install with:
-#   winget install --id Neovim.Neovim --version 0.11.6 --exact
-Neovim.Neovim                    # --version 0.11.6
+Microsoft.VisualStudioCode
 
-# --- C/C++, and the compiler treesitter needs for its parsers ----------------
-# LLVM.LLVM gives clangd and clang-format, but NOT a usable compiler: the
-# standalone Windows build ships no C runtime headers, so treesitter parsers
-# fail at `fatal error: 'stdlib.h' file not found`. llvm-mingw carries UCRT
-# headers and is what actually builds them -- see platform.ts_compilers().
-LLVM.LLVM                        # clangd + clang-format only
-MartinStorsjo.LLVM-MinGW.UCRT    # the C compiler treesitter needs
+# --- C/C++ -------------------------------------------------------------------
+LLVM.LLVM                        # clangd + clang-format
 
 # --- node --------------------------------------------------------------------
-# Not for writing JS: Mason installs vtsls/marksman/jsonls/yamlls as npm
-# packages, and prettier and markdownlint-cli2 are npm too.
+# Not for writing JS: prettier and markdownlint-cli2 are npm packages.
 OpenJS.NodeJS.LTS
 
 # --- python / rust -----------------------------------------------------------
 astral-sh.uv                     # plus `uv tool install ruff basedpyright`
 Rustlang.Rustup                  # rust-analyzer + rustfmt, matched to the toolchain
 
-# --- required by the nvim config ---------------------------------------------
-# format.lua and nvim-lint dispatch to these by name. On Linux apt owns them.
-koalaman.shellcheck
-mvdan.shfmt
-
 # --- everyday ----------------------------------------------------------------
-BenBoyter.scc                    # `make audit` on the Linux side
 DEVCOM.JetBrainsMonoNerdFont     # prompt and statusline glyphs need this

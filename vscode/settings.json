@@ -1,0 +1,68 @@
+// VS Code / Antigravity user settings. Linked into place by link.py; edits
+// made through the Settings UI land here, in the repo.
+{
+  // --- Appearance -----------------------------------------------------------
+  "editor.fontFamily": "'JetBrainsMono Nerd Font', 'Courier New', monospace",
+  "editor.fontLigatures": true,
+  "terminal.integrated.fontFamily": "'JetBrainsMono Nerd Font'",
+  "editor.rulers": [{ "column": 80, "color": "#ffffff44" }],
+  "editor.inlayHints.enabled": "off",
+  "workbench.sideBar.location": "right",
+  "workbench.startupEditor": "none",
+  "diffEditor.hideUnchangedRegions.enabled": true,
+  "chat.viewSessions.orientation": "stacked",
+  "indentRainbow.indicatorStyle": "light",
+  "indentRainbow.lightIndicatorStyleLineWidth": 2,
+  "indentRainbow.colors": [
+    "rgba(255,255,64,0.1)",
+    "rgba(127,255,127,0.1)",
+    "rgba(255,127,255,0.1)",
+    "rgba(79,236,236,0.1)"
+  ],
+
+  // --- Indentation and whitespace -------------------------------------------
+  // Two spaces, never a tab, regardless of what a file already uses. VS Code
+  // ignores .editorconfig without an extension, so its rules are repeated
+  // here. Makefiles keep real tabs through VS Code's built-in default.
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+  "editor.detectIndentation": false,
+  "files.eol": "\n",
+  "files.insertFinalNewline": true,
+  "files.trimTrailingWhitespace": true,
+
+  // --- Formatting -----------------------------------------------------------
+  // Prettier owns JSON, YAML and Markdown; each language below names its own.
+  // The tools read the same global configs as format-file (rustfmt.toml,
+  // ~/.clang-format, ruff.toml, ~/.prettierrc).
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "[python]": {
+    "editor.defaultFormatter": "charliermarsh.ruff",
+    "editor.codeActionsOnSave": { "source.organizeImports": "explicit" }
+  },
+  "[rust]": { "editor.defaultFormatter": "rust-lang.rust-analyzer" },
+  "[c]": { "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd" },
+  "[cpp]": {
+    "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd"
+  },
+  "[toml]": { "editor.defaultFormatter": "tamasfe.even-better-toml" },
+
+  // --- Language tooling -----------------------------------------------------
+  "python.analysis.typeCheckingMode": "standard",
+  "rust-analyzer.lens.implementations.enable": false,
+
+  // --- Files ----------------------------------------------------------------
+  "files.exclude": {
+    "**/__pycache__": true,
+    "**/.pytest_cache": true,
+    "**/.ruff_cache": true,
+    "**/.venv": true,
+    "**/.vscode": true,
+    "**/dist": true,
+    "**/target": true
+  },
+
+  // --- Remote ---------------------------------------------------------------
+  "remote.autoForwardPortsSource": "hybrid"
+}

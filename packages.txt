@@ -1,11 +1,10 @@
-# apt packages. Install with `make packages`.
+# apt packages. Install with the one-liner in README.md.
 # One per line; `#` comments and blank lines ignored.
 
 # --- shell -------------------------------------------------------------------
 zsh
 zsh-autosuggestions
 zsh-syntax-highlighting
-stow
 
 # --- coreutils replacements --------------------------------------------------
 eza                   # ls
@@ -24,11 +23,7 @@ gh                    # github cli
 # --- history -----------------------------------------------------------------
 atuin
 
-# --- editor + multiplexer ----------------------------------------------------
-neovim
-tmux
-
-# --- C/C++, and the build deps treesitter needs to compile its parsers --------
+# --- C/C++ -------------------------------------------------------------------
 build-essential
 cmake
 ninja-build
@@ -38,16 +33,10 @@ clang-format
 clang-tidy
 
 # --- node ---------------------------------------------------------------------
-# Not for writing JS: Mason installs vtsls/marksman/jsonls/yamlls as npm
-# packages, and prettier and markdownlint-cli2 are npm too. Without this the
-# editor silently loses format-on-save and half its language servers.
+# Not for writing JS: prettier and markdownlint-cli2, which format-file calls
+# for json/yaml/md, are npm packages.
 nodejs
 npm
-
-# --- required by the nvim config ---------------------------------------------
-# format.lua and nvim-lint dispatch to these by name. Not optional extras.
-shellcheck
-shfmt
 
 # --- everyday ----------------------------------------------------------------
 jq

@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.local/bin/format-file",
+            "timeout": 15
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ \"$CLAUDE_CODE_REMOTE\" != true ] || { git -C ~/.dotfiles pull -q --ff-only && python3 ~/.dotfiles/link.py --platform cloud; } >/dev/null 2>&1 || true",
+            "timeout": 60
+          }
+        ]
+      }
+    ]
+  }
+}
