@@ -42,7 +42,9 @@ rationalization this rule exists to block.
 
 GitHub is the only source of truth, and state is **derived, never stored**. No
 status labels, no plan file, no summary issue: a snapshot that looks
-authoritative goes stale.
+authoritative goes stale. Native GitHub primitives carry all coordination:
+milestones for batch boundaries, assignees for claiming, blockers for DAG
+dependencies, and draft/ready PRs for execution state.
 
 | State   | Is                                                        |
 | ------- | --------------------------------------------------------- |
@@ -85,6 +87,12 @@ or force-pushed; a fix is a new commit. The squash merge hides that.
   sub-issues (`gh issue create --parent N`), with order expressed as blockers
   (`--blocked-by N`), never as prose.
 - **Titles** are the eventual commit subject: `<type>(<scope>): <summary>`.
+- **Milestones.** Assign every issue to a GitHub Milestone
+  (`gh issue edit N --milestone "<name>"`). Milestones define the batch
+  container for releases and tracks without inventing custom `status:*` or
+  `phase:*` labels. Multiple concurrent orchestrators filter by milestone
+  (`gh issue list --milestone "<name>" --label ready`) to parallelize across
+  distinct tracks without cross-talk.
 - **Spin-offs.** Anyone who finds something out of scope searches for a
   duplicate, then files it as `triage` with `Spun off from #N`. Nobody fixes it
   in place.
@@ -98,7 +106,8 @@ or force-pushed; a fix is a new commit. The squash merge hides that.
 
 ## 4. Dispatch
 
-1. `git worktree prune`, then list unblocked `ready` issues.
+1. `git worktree prune`, then list unblocked `ready` issues (optionally filtered
+   by milestone: `gh issue list --milestone "<name>" --label ready`).
 2. **Claim**: self-assign. If someone else already holds it, pick another. Never
    run two leads against one local clone; worktrees share one `.git/`.
 3. **Stop rules**, before dispatching:
