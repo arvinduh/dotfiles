@@ -1,0 +1,153 @@
+# links.toml — Declarative link definitions for link.py.
+#
+# Schema per entry:
+#   source:  path inside this repository. A trailing `/*` links each child into
+#            the target directory instead of linking the source itself.
+#   home:    target path on both Linux and Windows.
+#   linux:   target path override for Linux/WSL.
+#   windows: target path override for Windows.
+#   cloud:   set to true to also link in Claude Code cloud sessions.
+
+# --- agents: one copy of directives and skills, linked into each tool ---------
+
+[[link]]
+source = "agents"
+home = "~/.agents"
+cloud = true
+
+[[link]]
+source = "claude/CLAUDE.md"
+home = "~/.claude/CLAUDE.md"
+cloud = true
+
+[[link]]
+source = "claude/settings.json"
+home = "~/.claude/settings.json"
+cloud = true
+
+[[link]]
+source = "agents/skills/*"
+home = "~/.claude/skills"
+cloud = true
+
+[[link]]
+source = "agents/AGENTS.md"
+home = "~/.gemini/config/AGENTS.md"
+
+[[link]]
+source = "agents/skills"
+home = "~/.gemini/config/skills"
+
+[[link]]
+source = "gemini/hooks.json"
+home = "~/.gemini/config/hooks.json"
+
+# --- editor: VS Code and Antigravity share one settings file ------------------
+
+[[link]]
+source = "vscode/settings.json"
+linux = "~/.config/Code/User/settings.json"
+windows = "%APPDATA%/Code/User/settings.json"
+
+[[link]]
+source = "vscode/settings.json"
+linux = "~/.config/Antigravity/User/settings.json"
+windows = "%APPDATA%/Antigravity/User/settings.json"
+
+# --- formatting and quality hooks ---------------------------------------------
+
+[[link]]
+source = "format/format-file.py"
+linux = "~/.local/bin/format-file"
+cloud = true
+
+[[link]]
+source = "format/format-file.py"
+windows = "~/.local/bin/format-file.py"
+
+[[link]]
+source = "format/format-file.cmd"
+windows = "~/.local/bin/format-file.cmd"
+
+[[link]]
+source = "format/stop-gate.py"
+linux = "~/.local/bin/stop-gate"
+cloud = true
+
+[[link]]
+source = "format/stop-gate.py"
+windows = "~/.local/bin/stop-gate.py"
+
+[[link]]
+source = "format/stop-gate.cmd"
+windows = "~/.local/bin/stop-gate.cmd"
+
+# --- formatting configs -------------------------------------------------------
+
+[[link]]
+source = "format/.editorconfig"
+home = "~/.editorconfig"
+
+[[link]]
+source = "format/.clang-format"
+home = "~/.clang-format"
+
+[[link]]
+source = "format/.prettierrc"
+home = "~/.prettierrc"
+
+[[link]]
+source = "format/.taplo.toml"
+home = "~/.taplo.toml"
+
+[[link]]
+source = "format/.clippy.toml"
+home = "~/.clippy.toml"
+
+[[link]]
+source = "format/rustfmt.toml"
+linux = "~/.config/rustfmt/rustfmt.toml"
+windows = "%APPDATA%/rustfmt/rustfmt.toml"
+
+[[link]]
+source = "format/ruff.toml"
+linux = "~/.config/ruff/ruff.toml"
+windows = "%APPDATA%/ruff/ruff.toml"
+
+[[link]]
+source = "format/.markdownlint-cli2.jsonc"
+home = "~/.config/markdownlint/.markdownlint-cli2.jsonc"
+
+# --- shell and git ------------------------------------------------------------
+
+[[link]]
+source = "zsh/.zshenv"
+linux = "~/.zshenv"
+
+[[link]]
+source = "zsh"
+linux = "~/.config/zsh"
+
+[[link]]
+source = "git"
+home = "~/.config/git"
+
+[[link]]
+source = "atuin"
+linux = "~/.config/atuin"
+
+[[link]]
+source = "bat"
+linux = "~/.config/bat"
+
+[[link]]
+source = "bat/config"
+windows = "%APPDATA%/bat/config"
+
+[[link]]
+source = "windows/starship.toml"
+windows = "~/.config/starship.toml"
+
+[[link]]
+source = "windows/profile.ps1"
+windows = "%DOCUMENTS%/PowerShell/Microsoft.PowerShell_profile.ps1"

@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 """Symlinks this repository's configs into place, on Linux, Windows, and cloud.
 
-The LINKS table below is the whole map. Each entry names a source inside this
-repository and a target per platform; a platform with no target skips the
-entry. The script only creates symlinks. It never installs packages (see the
+Link mappings are defined declaratively in `links.toml`.
+The script only creates symlinks. It never installs packages (see the
 bootstrap block in README.md) and never overwrites a real file: anything in
 the way is moved to `<target>.bak-<timestamp>` first.
 
@@ -20,91 +19,25 @@ import pathlib
 import re
 import sys
 import time
+import tomllib
+from typing import cast
 
 REPO = pathlib.Path(__file__).resolve().parent
-
-# source: path in this repo. A trailing `/*` links each match into the target
-#   directory instead of linking the source itself.
-# home: target on both Linux and Windows. `linux` / `windows` override it, or
-#   stand alone for a one-platform link. `~` is the home directory, `%NAME%` an
-#   environment variable (`%DOCUMENTS%` is the Windows Documents folder).
-# cloud: also link `home` in Claude Code cloud sessions.
-LINKS: list[dict[str, str | bool]] = [
-  # --- agents: one copy of directives and skills, linked into each tool ----
-  {"source": "agents", "home": "~/.agents", "cloud": True},
-  {"source": "claude/CLAUDE.md", "home": "~/.claude/CLAUDE.md", "cloud": True},
-  {
-    "source": "claude/settings.json",
-    "home": "~/.claude/settings.json",
-    "cloud": True,
-  },
-  # One link per skill: ~/.claude/skills/synced holds claude.ai's own skills.
-  {"source": "agents/skills/*", "home": "~/.claude/skills", "cloud": True},
-  {"source": "agents/AGENTS.md", "home": "~/.gemini/config/AGENTS.md"},
-  {"source": "agents/skills", "home": "~/.gemini/config/skills"},
-  {"source": "gemini/hooks.json", "home": "~/.gemini/config/hooks.json"},
-  # --- editor: VS Code and Antigravity share one settings file --------------
-  {
-    "source": "vscode/settings.json",
-    "linux": "~/.config/Code/User/settings.json",
-    "windows": "%APPDATA%/Code/User/settings.json",
-  },
-  {
-    "source": "vscode/settings.json",
-    "linux": "~/.config/Antigravity/User/settings.json",
-    "windows": "%APPDATA%/Antigravity/User/settings.json",
-  },
-  # --- formatting -------------------------------------------------------------
-  {
-    "source": "format/format-file",
-    "home": "~/.local/bin/format-file",
-    "cloud": True,
-  },
-  {
-    "source": "format/format-file.cmd",
-    "windows": "~/.local/bin/format-file.cmd",
-  },
-  # These tools find config only by walking up from the file, so ~ is the one
-  # place that covers every project.
-  {"source": "format/.editorconfig", "home": "~/.editorconfig"},
-  {"source": "format/.clang-format", "home": "~/.clang-format"},
-  {"source": "format/.prettierrc", "home": "~/.prettierrc"},
-  {"source": "format/.taplo.toml", "home": "~/.taplo.toml"},
-  {"source": "format/.clippy.toml", "home": "~/.clippy.toml"},
-  # These have a real per-user config location, so they stay out of ~.
-  {
-    "source": "format/rustfmt.toml",
-    "linux": "~/.config/rustfmt/rustfmt.toml",
-    "windows": "%APPDATA%/rustfmt/rustfmt.toml",
-  },
-  {
-    "source": "format/ruff.toml",
-    "linux": "~/.config/ruff/ruff.toml",
-    "windows": "%APPDATA%/ruff/ruff.toml",
-  },
-  # format-file passes this path to markdownlint-cli2 explicitly.
-  {
-    "source": "format/.markdownlint-cli2.jsonc",
-    "home": "~/.config/markdownlint/.markdownlint-cli2.jsonc",
-  },
-  # --- shell and git ---------------------------------------------------------
-  # Directory links on purpose: zsh's local.zsh is written back through it
-  # (gitignored).
-  {"source": "zsh/.zshenv", "linux": "~/.zshenv"},
-  {"source": "zsh", "linux": "~/.config/zsh"},
-  {"source": "git", "home": "~/.config/git"},
-  {"source": "atuin", "linux": "~/.config/atuin"},
-  {"source": "bat", "linux": "~/.config/bat"},
-  {"source": "bat/config", "windows": "%APPDATA%/bat/config"},
-  {"source": "windows/starship.toml", "windows": "~/.config/starship.toml"},
-  # PowerShell 7's profile, not Windows PowerShell 5.1's (left alone).
-  {
-    "source": "windows/profile.ps1",
-    "windows": "%DOCUMENTS%/PowerShell/Microsoft.PowerShell_profile.ps1",
-  },
-]
-
+LINKS_CONFIG = REPO / "links.toml"
 PLATFORMS = ("linux", "windows", "cloud")
+
+
+def load_links(config_file: pathlib.Path) -> list[dict[str, object]]:
+  """Loads declarative link mappings from links.toml."""
+  if not config_file.is_file():
+    return []
+  with config_file.open("rb") as f:
+    data = tomllib.load(f)
+  raw = data.get("link", [])
+  if not isinstance(raw, list):
+    return []
+  raw_list = cast(list[object], raw)
+  return [cast(dict[str, object], i) for i in raw_list if isinstance(i, dict)]
 
 
 def documents_dir() -> str:
@@ -135,10 +68,12 @@ def expand(target: str) -> pathlib.Path:
   return pathlib.Path(os.path.expanduser(re.sub(r"%(\w+)%", env, target)))
 
 
-def resolve(platform: str) -> list[tuple[pathlib.Path, pathlib.Path]]:
+def resolve(
+  links: list[dict[str, object]], platform: str
+) -> list[tuple[pathlib.Path, pathlib.Path]]:
   """Returns (source, target) pairs for one platform, globs expanded."""
   pairs: list[tuple[pathlib.Path, pathlib.Path]] = []
-  for entry in LINKS:
+  for entry in links:
     if platform == "cloud":
       raw = entry.get("home") if entry.get("cloud") else None
     else:
@@ -146,7 +81,7 @@ def resolve(platform: str) -> list[tuple[pathlib.Path, pathlib.Path]]:
     if not isinstance(raw, str):
       continue
     target = expand(raw)
-    source = str(entry["source"])
+    source = str(entry.get("source", ""))
     if source.endswith("/*"):
       parent = REPO / source[:-2]
       pairs += [(m, target / m.name) for m in sorted(parent.iterdir())]
@@ -236,9 +171,10 @@ def main() -> int:
   parser.add_argument("--dry-run", action="store_true")
   args = parser.parse_args()
 
+  links = load_links(LINKS_CONFIG)
   stamp = time.strftime("%Y%m%d-%H%M%S")
   rows: list[tuple[str, str, str]] = []
-  for source, target in resolve(args.platform):
+  for source, target in resolve(links, args.platform):
     try:
       status, note = link_one(source, target, args.dry_run, stamp)
     except OSError as e:
@@ -247,7 +183,7 @@ def main() -> int:
         note = "no symlink permission: turn on Developer Mode, or run elevated"
     rows.append((status, str(target), note))
 
-  width = max(len(r[0]) for r in rows)
+  width = max((len(r[0]) for r in rows), default=6)
   for status, target, note in rows:
     print(f"{status:<{width}}  {target}  {note}".rstrip())
   failed = sum(1 for r in rows if r[0][0].isupper())
