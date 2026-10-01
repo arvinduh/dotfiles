@@ -23,13 +23,36 @@ select = [
   "UP",  # pyupgrade
   "SIM", # flake8-simplify
   "RUF", # ruff-specific
+  "D",   # pydocstyle — Google docstrings on every public item
+  "ANN", # flake8-annotations — complete signatures
+  "N",   # pep8-naming
+  "TID", # flake8-tidy-imports — bans below
 ]
 ignore = [
   "E501", # line-too-long — the formatter owns width, the linter shouldn't nag
 ]
 
+[lint.per-file-ignores]
+# Google: test docstrings are optional.
+"*_test.py" = ["D"]
+"test_*.py" = ["D"]
+
 [lint.pydocstyle]
 convention = "google"
+
+# Google import order: one import per line, sorted by full module path with
+# `import x` and `from x import y` interleaved.
+[lint.isort]
+force-single-line = true
+force-sort-within-sections = true
+single-line-exclusions = ["typing", "collections.abc"]
+
+[lint.flake8-tidy-imports]
+ban-relative-imports = "all"
+
+# Deliberate deviation from Google: no postponed annotations.
+[lint.flake8-tidy-imports.banned-api]
+"__future__.annotations".msg = "Quote forward references instead."
 
 [format]
 quote-style = "double"

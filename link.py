@@ -14,8 +14,6 @@ Usage:
   python3 link.py --dry-run          # show what would change, change nothing
 """
 
-from __future__ import annotations
-
 import argparse
 import os
 import pathlib
