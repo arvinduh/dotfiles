@@ -154,8 +154,18 @@ before the PR is marked ready and again in QA.
 
 ## 5. QA
 
-Required for anything touching shared code or adding behavior. Skip only for
-one-line or typo fixes.
+Required for anything touching shared code, refactoring architecture, or adding
+behavior.
+
+**Exemptions (skip §5):**
+
+- One-line or typo fixes.
+- **Mechanical lint and test-gate fixes:** Pure lint enablement (e.g. enabling a
+  clippy lint in `Cargo.toml` and applying syntax/idiom fixes) or test-gate
+  adjustments that introduce zero runtime behavior changes, provided that the
+  compiler/clippy gate passes locally with zero warnings and required CI status
+  checks are 100% green. The lead audits the diff against the issue's file list
+  and merges directly.
 
 QA is a **separate agent that did not write the code**, dispatched with the QA
 template. It runs the full gate itself, checks the diff against the issue's
