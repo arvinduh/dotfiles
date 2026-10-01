@@ -231,6 +231,5 @@ MUST inspect and follow the corresponding skill (Claude Code: invoke it with the
 Skill tool; other harnesses: read its `SKILL.md`):
 
 - **Rust Projects:** Read and follow the `rust-guide` skill.
-- **C++ Projects:** Read and follow the `cpp-guide` skill.
 - **Python Projects:** Read and follow the `python-guide` skill.
 - **Multi-Agent / Worktree Workflows:** Read and follow the `orchestrate` skill.
