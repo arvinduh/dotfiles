@@ -24,8 +24,9 @@ types/errors -> private logic/helpers -> gatekeeper -> caller/tests. Mandatory
 scope in Conventional Commit format: `<type>(<scope>): <summary>`. Before each
 commit run the fast check: <build + format check>. Push after every commit;
 open a draft PR titled "<type>(<scope>): <summary>" with "Fixes #<N>" in the
-body on the first push. Never amend or force-push a pushed commit; add a commit.
-Do not report per commit.
+body on the first push (use `--body-file <path>` or single-quoted strings in
+PowerShell to prevent backtick mangling). Never amend or force-push a pushed
+commit; add a commit. Do not report per commit.
 
 Before finishing run the full gate: <repo's full presubmit commands>. A
 unit-tests-only run is not the gate. Then mark the PR ready and report once:

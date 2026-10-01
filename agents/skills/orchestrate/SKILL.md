@@ -93,6 +93,12 @@ or force-pushed; a fix is a new commit. The squash merge hides that.
   `phase:*` labels. Multiple concurrent orchestrators filter by milestone
   (`gh issue list --milestone "<name>" --label ready`) to parallelize across
   distinct tracks without cross-talk.
+- **Body escaping (PowerShell / Windows).** Never pass Markdown containing
+  backticks or code spans inside double quotes (`--body "..."`) in PowerShell.
+  PowerShell treats backticks as escape characters (e.g. `` `f `` becomes form
+  feed `\x0c`, `` `r `` carriage return, mangling paths and code). Always write
+  the body to a temporary file and pass `--body-file <path>`, or use a verbatim
+  single-quoted here-string (`@'...'@`).
 - **Spin-offs.** Anyone who finds something out of scope searches for a
   duplicate, then files it as `triage` with `Spun off from #N`. Nobody fixes it
   in place.
