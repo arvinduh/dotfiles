@@ -31,7 +31,7 @@ REPO = pathlib.Path(__file__).resolve().parent
 #   stand alone for a one-platform link. `~` is the home directory, `%NAME%` an
 #   environment variable (`%DOCUMENTS%` is the Windows Documents folder).
 # cloud: also link `home` in Claude Code cloud sessions.
-LINKS = [
+LINKS: list[dict[str, str | bool]] = [
   # --- agents: one copy of directives and skills, linked into each tool ----
   {"source": "agents", "home": "~/.agents", "cloud": True},
   {"source": "claude/CLAUDE.md", "home": "~/.claude/CLAUDE.md", "cloud": True},
@@ -139,20 +139,21 @@ def expand(target: str) -> pathlib.Path:
 
 def resolve(platform: str) -> list[tuple[pathlib.Path, pathlib.Path]]:
   """Returns (source, target) pairs for one platform, globs expanded."""
-  pairs = []
+  pairs: list[tuple[pathlib.Path, pathlib.Path]] = []
   for entry in LINKS:
     if platform == "cloud":
       raw = entry.get("home") if entry.get("cloud") else None
     else:
       raw = entry.get(platform, entry.get("home"))
-    if raw is None:
+    if not isinstance(raw, str):
       continue
     target = expand(raw)
-    if entry["source"].endswith("/*"):
-      parent = REPO / entry["source"][:-2]
+    source = str(entry["source"])
+    if source.endswith("/*"):
+      parent = REPO / source[:-2]
       pairs += [(m, target / m.name) for m in sorted(parent.iterdir())]
     else:
-      pairs.append((REPO / entry["source"], target))
+      pairs.append((REPO / source, target))
   return pairs
 
 
@@ -200,10 +201,10 @@ def link_one(
   if inside_repo(target.parent):
     return "CONFLICT", "parent dir is a link into this repo; run `stow -D` once"
 
+  backup = target.with_name(f"{target.name}.bak-{stamp}")
   if target.is_symlink():
     action, note = "relink", "replaced stale link"
   elif target.exists():
-    backup = target.with_name(f"{target.name}.bak-{stamp}")
     action, note = "backup", f"saved {backup.name}"
   else:
     action, note = "create", ""
@@ -226,7 +227,7 @@ def link_one(
 def main() -> int:
   """Parses arguments and links everything for one platform."""
   parser = argparse.ArgumentParser(
-    description=__doc__.splitlines()[0],
+    description=(__doc__ or "").splitlines()[0],
     formatter_class=argparse.RawDescriptionHelpFormatter,
   )
   parser.add_argument(
@@ -238,7 +239,7 @@ def main() -> int:
   args = parser.parse_args()
 
   stamp = time.strftime("%Y%m%d-%H%M%S")
-  rows = []
+  rows: list[tuple[str, str, str]] = []
   for source, target in resolve(args.platform):
     try:
       status, note = link_one(source, target, args.dry_run, stamp)
