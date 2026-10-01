@@ -207,6 +207,106 @@ pub enum Error {
   [references/wasm.md](references/wasm.md). Read it whenever the crate depends
   on `wasm-bindgen`, `web-sys`, or `js-sys`.
 
+### H. Binary & CLI architecture
+
+- **Process Host Pattern (`main.rs`):** `main.rs` is the process runtime
+  boundary. It owns process-level side effects: terminal capability detection
+  (`NO_COLOR`, `CLICOLOR_FORCE`, TTY checks), panic hooks
+  (`std::panic::set_hook`), signal handling (Ctrl+C), and calling
+  `Cli::parse()`.
+- **No Destructor Bypass:** `main` must return `std::process::ExitCode` or a
+  type implementing `std::process::Termination`. `std::process::exit(code)` is
+  **banned** in library and adapter code because it terminates without running
+  Rust destructors (`Drop`), leaking temporary directories, file locks, or IPC
+  handles.
+- **`cli` Belongs to the Binary, Not `lib.rs`:** In a dual-target project
+  (`src/lib.rs` + `src/main.rs`), `src/cli/` is declared via `mod cli;` inside
+  `src/main.rs`, **never** in `src/lib.rs`.
+  - `src/cli/` imports the library (`use <crate>::engine::...;`), adapting
+    terminal flags into library calls.
+  - `src/lib.rs` has **zero** knowledge of `cli` and zero dependency on `clap`.
+    This compiler-enforces unidirectional layering: library code cannot import
+    CLI adapters even by accident, and external library consumers never compile
+    CLI parsing code.
+- **Modular Command Adapters (`src/cli/`):** Avoid monolithic `cli.rs` files.
+  Co-locate each subcommand's Clap `#[derive(Args)]` struct with its execution
+  adapter in `src/cli/<cmd>.rs`. Top-level `src/cli/mod.rs` only defines global
+  flags and matches the `Commands` enum to dispatch:
+
+  ```rust
+  // src/cli/init.rs: command-specific arguments and execution adapter
+  #[derive(clap::Args)]
+  pub struct InitArgs {
+    #[arg(short, long)]
+    pub force: bool,
+  }
+
+  pub fn run(args: InitArgs) -> Result<(), fml::Error> {
+    fml::engine::init(args.force)
+  }
+
+  // src/cli/mod.rs: top-level parser and subcommand dispatch
+  pub mod init;
+  pub mod solve;
+
+  #[derive(clap::Parser)]
+  pub struct Cli {
+    #[command(subcommand)]
+    pub command: Commands,
+  }
+
+  #[derive(clap::Subcommand)]
+  pub enum Commands {
+    Init(init::InitArgs),
+    Solve(solve::SolveArgs),
+  }
+
+  pub fn run(cli: Cli) -> Result<(), fml::Error> {
+    match cli.command {
+      Commands::Init(args) => init::run(args),
+      Commands::Solve(args) => solve::run(args),
+    }
+  }
+
+  // src/main.rs: Process Host with explicit, exhaustively matched exit codes
+  mod cli;
+
+  use clap::Parser;
+  use std::process::ExitCode;
+
+  fn main() -> ExitCode {
+    let cli = cli::Cli::parse();
+    match cli::run(cli) {
+      Ok(()) => ExitCode::SUCCESS,
+      Err(err) => {
+        eprintln!("[ERROR] {err}");
+        ExitCode::FAILURE
+      }
+    }
+  }
+  ```
+
+  For multi-code tools (e.g. formatters/linters distinguishing clean vs
+  violations vs error), matching the status enum directly preserves
+  compiler-enforced exhaustiveness:
+
+  ```rust
+  fn main() -> ExitCode {
+    let cli = cli::Cli::parse();
+    match cli::run(cli) {
+      ExitStatus::Clean => ExitCode::SUCCESS,
+      ExitStatus::Violations => ExitCode::from(1),
+      ExitStatus::Error => ExitCode::from(2),
+    }
+  }
+  ```
+
+- **Unidirectional Layering:**
+
+  ```text
+  main.rs (mod cli;)  ──►  src/cli/  ──►  <crate>::lib  ──►  <crate>::errors
+  ```
+
 ## 4. Cleanup workflow
 
 Use this when asked to "clean up", "tidy", or bring a crate up to standard.
