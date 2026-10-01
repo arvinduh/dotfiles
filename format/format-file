@@ -41,7 +41,7 @@ have() { command -v "$1" >/dev/null 2>&1; }
 findings=""
 case "$file" in
   *.rs)
-    have rustfmt && { rustfmt +nightly "$file" || rustfmt "$file"; } ;;
+    have rustfmt && rustfmt "$file" ;;
   *.py)
     if have ruff; then
       ruff check --fix --quiet "$file" || true
