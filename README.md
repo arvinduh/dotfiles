@@ -76,9 +76,16 @@ link. Antigravity can't use Microsoft's Settings Sync anyway.
 Extensions live in `vscode/extensions.txt`:
 
 ```bash
-xargs -L1 code --install-extension < vscode/extensions.txt  # install
-code --list-extensions > vscode/extensions.txt              # save current set
+code $(sed 's/^/--install-extension /' vscode/extensions.txt)  # install (bash/zsh)
+code --list-extensions > vscode/extensions.txt                # save current set
 ```
+
+```powershell
+code (Get-Content vscode\extensions.txt | % { '--install-extension', $_ })
+```
+
+One `code` call installs the whole list; looping launches VS Code's CLI once per
+extension, which is slow and prints nothing between installs.
 
 On WSL, VS Code's user settings live on the Windows side, so run `link.py` from
 Windows for the editor.
