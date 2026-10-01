@@ -1,92 +1,51 @@
 ---
 name: python-guide
 description: >-
-  Comprehensive guide for writing, reviewing, and refactoring Python code.
-  Enforces Google Python Style Guide standards, Ruff formatting (2-space,
-  80-col), Basedpyright type checking, explicit module imports, and Google
-  docstring conventions. Activate whenever working with Python (.py) files.
+  Personal Python standard — the Google Python Style Guide with two deviations
+  (2-space indent, no `from __future__ import annotations`), enforced by Ruff
+  and Basedpyright. Use this whenever you write, edit, review, or refactor
+  Python (.py files, pyproject.toml, ruff config), even for a one-line fix.
 ---
 
-# Python Engineering Guide — Google Style & Architecture Specification
+# Python Engineering Guide
 
-This guide defines formatting, structural constraints, and type checking
-standards for Python development across projects in this environment.
+The standard is the
+[Google Python Style Guide](https://google.github.io/styleguide/pyguide.html).
+Tools enforce most of it, so this guide lists only the deviations and the rules
+no tool checks. A rule a tool can check does not belong in prose.
 
----
+## 0. Precedence
 
-## 1. Mechanical Formatter & Linter (`ruff.toml`)
+This guide is the default. A repository's own `AGENTS.md`/`CLAUDE.md`,
+`pyproject.toml`, or `ruff.toml` wins where it says something different. Never
+"fix" a repo toward this guide as a side effect of other work.
 
-All Python formatting (2-space indents, 80-column lines, quote styles, import
-sorting) is enforced 100% mechanically by Ruff (`ruff format`,
-`ruff check --fix`) via Antigravity disk hooks and Git pre-commit hooks. Do not
-waste tokens or reasoning on manual whitespace layout.
+## 1. Enforced by tools
 
----
+| Tool           | Covers                                                    |
+| -------------- | --------------------------------------------------------- |
+| `ruff format`  | layout: 2-space indent, 80 columns, double quotes         |
+| `ruff check`   | import order, docstrings, annotations, naming, bug idioms |
+| `basedpyright` | types                                                     |
 
-## 2. Import Conventions (Google Style)
+Never reason about layout; the edit hook formats each file. The same hook
+reports the lint findings it could not fix. Fix each one; silence a rule only on
+the one line, with the reason: `# noqa: B006 - <why>`.
 
-### Import Modules, Not Symbols
+Gate: `ruff format --check . && ruff check . && basedpyright`.
 
-- **Rule:** Use `import x` for packages and modules.
-- **Allowed:** `from package import module` to qualify submodule paths.
-- **Forbidden:** Do not import classes or functions directly from internal
-  modules (e.g., `from my_module import calculate_metric` is forbidden; write
-  `from package import my_module` and call `my_module.calculate_metric()`).
-- **Typing Exception:** Type annotations may be imported directly from `typing`
-  and `collections.abc` (e.g., `from typing import Any, Self`).
-- **No Wildcard Imports:** `from foo import *` is strictly forbidden.
+## 2. Deviations from Google
 
----
+- **Indent is 2 spaces**, not 4.
+- **No `from __future__ import annotations`.** Quote a forward reference
+  instead: `def parent(self) -> "Node":`.
 
-## 3. Strict Type Annotations (`basedpyright`)
+## 3. Rules no tool checks
 
-Every module must pass static type checking under Basedpyright:
-
-1. **Complete Function Signatures:** All function and method parameters, as well
-   as return values, must have explicit type annotations.
-2. **Modern Standard Collections:** Use built-in generics directly (`list[T]`,
-   `dict[K, V]`, `set[T]`, `tuple[T, ...]`) rather than legacy `typing.List`.
-3. **Explicit Optionality:** Use `T | None` rather than `Optional[T]`.
-
----
-
-## 4. Google Docstring Format
-
-Every public module, class, and function must have a Google-style docstring:
-
-```python
-def process_record(record_id: str, count: int = 1) -> bool:
-  """Processes an incoming data record and persists updates.
-
-  Args:
-    record_id: Unique string identifier of the entity.
-    count: Number of event occurrences to register.
-
-  Returns:
-    True if the record was processed and committed, False otherwise.
-
-  Raises:
-    ValueError: If record_id is empty or count is non-positive.
-  """
-  ...
-```
-
----
-
-## 5. Idioms & Defensive Engineering
-
-1. **No Mutable Defaults:** Never use mutable objects (`[]`, `{}`) as default
-   parameter values. Use `None` as a sentinel:
-
-   ```python
-   # Correct:
-   def append_item(val: str, target: list[str] | None = None) -> list[str]:
-     items = target if target is not None else []
-     items.append(val)
-     return items
-   ```
-
-2. **Context Managers for I/O:** Always use `with open(...)` or managed contexts
-   for file handles, database transactions, and concurrency locks.
-3. **Generators for Large Streams:** Prefer generator expressions and `yield`
-   over accumulating massive in-memory lists when streaming records.
+- **Import modules, not symbols.** `from package import module`, then
+  `module.function()`. Never `from module import function`. Exception: names
+  from `typing` and `collections.abc`.
+- **Docstrings say what the signature cannot:** intent, units, invariants.
+  `Args:`/`Returns:`/`Raises:` only where they add information.
+- **Streams stay lazy.** Yield records instead of building a list a caller only
+  iterates once.
