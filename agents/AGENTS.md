@@ -225,3 +225,18 @@ Skill tool; other harnesses: read its `SKILL.md`):
 - **Rust Projects:** Read and follow the `rust-guide` skill.
 - **Python Projects:** Read and follow the `python-guide` skill.
 - **Multi-Agent / Worktree Workflows:** Read and follow the `orchestrate` skill.
+
+---
+
+## 11. Feedback
+
+These directives and skills are honed one lesson at a time. When work exposes a
+gap, end your report with a **Directives** line, one sentence per item:
+
+- a rule here or in a skill that was wrong, stale, or contradicted another;
+- a correction the user had to give twice;
+- a rule that a lint, test, or hook could enforce instead of prose;
+- a repeated procedure with no skill yet.
+
+Name the file and the proposed change. Propose only; never edit `AGENTS.md` or a
+skill unasked, and say nothing when there is nothing to report.

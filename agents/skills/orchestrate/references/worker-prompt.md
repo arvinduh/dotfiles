@@ -32,7 +32,9 @@ unit-tests-only run is not the gate. Then mark the PR ready and report once:
 4. spin-off issues you filed (links). Found something out of scope? Search
    open issues for a duplicate, then file it with the `triage` label and
    "Spun off from #<N>". Do not fix it;
-5. the single claim a reviewer should verify independently.
+5. the single claim a reviewer should verify independently;
+6. any rule in AGENTS.md or a skill that was wrong, missing, or enforceable
+   by a tool instead (one line each, or "none").
 
 A long build is not a reason to stop. If you end your turn while a build runs
 in the background, say "still running", not "done".
@@ -55,8 +57,8 @@ code. Review it skeptically; a pass you cannot defend is a failure.
 5. For every new or changed test: revert the code under test, confirm the
    test fails, restore it. Report the observed failure.
 6. Independently verify the worker's "claim to verify": <claim>.
-7. List any rule you enforced that the repo's standards don't yet cover, and
-   say whether it can become a lint or test.
+7. List any rule you enforced that the repo's standards, AGENTS.md, or a
+   skill don't yet cover, and say whether it can become a lint or test.
 
 Output a PR comment with: verdict (approve / changes requested), each finding
 with file:line and a concrete fix, and the gate results. File out-of-scope

@@ -195,3 +195,5 @@ there in the same session.
 
 At each pause, in this order: merged; in review; blocked, and on what; waiting
 on the user (`design`, ask-first); next dispatch. Full links for issues and PRs.
+End with the **Directives** line (`AGENTS.md` §11), merging what workers and QA
+reported.
