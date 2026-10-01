@@ -210,12 +210,16 @@ def link_one(
   if dry_run:
     return f"would {action}", f"-> {source.relative_to(REPO)}"
 
+  # Create the new link under a temporary name first. If the OS refuses it
+  # (Windows without Developer Mode), nothing has been moved or deleted yet.
   target.parent.mkdir(parents=True, exist_ok=True)
+  staged = target.with_name(f"{target.name}.link-{stamp}")
+  os.symlink(source, staged, target_is_directory=source.is_dir())
   if action == "relink":
     target.unlink()
   elif action == "backup":
     target.rename(backup)
-  os.symlink(source, target, target_is_directory=source.is_dir())
+  staged.rename(target)
   return "linked", note
 
 
