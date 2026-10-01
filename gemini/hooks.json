@@ -6,10 +6,19 @@
         "hooks": [
           {
             "type": "command",
-            "command": "~/.local/bin/format-file",
+            "command": "format-file",
             "timeout": 15
           }
         ]
+      }
+    ]
+  },
+  "stop-gate": {
+    "Stop": [
+      {
+        "type": "command",
+        "command": "stop-gate",
+        "timeout": 30
       }
     ]
   }
