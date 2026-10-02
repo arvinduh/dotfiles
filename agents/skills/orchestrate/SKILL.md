@@ -44,7 +44,9 @@ GitHub is the only source of truth, and state is **derived, never stored**. No
 status labels, no plan file, no summary issue: a snapshot that looks
 authoritative goes stale. Native GitHub primitives carry all coordination:
 milestones for batch boundaries, assignees for claiming, blockers for DAG
-dependencies, and draft/ready PRs for execution state.
+dependencies, and draft/ready PRs for execution state. The one exception is an
+ownership label, `lead:<name>`: concurrent leads (`claude`, `agy`, ...) all act
+as the same GitHub user, so the assignee alone cannot say whose claim it is.
 
 | State   | Is                                                        |
 | ------- | --------------------------------------------------------- |
@@ -112,17 +114,22 @@ or force-pushed; a fix is a new commit. The squash merge hides that.
 
 ## 4. Dispatch
 
-1. `git worktree prune`, then list unblocked `ready` issues (optionally filtered
-   by milestone: `gh issue list --milestone "<name>" --label ready`).
-2. **Claim**: self-assign. If someone else already holds it, pick another. Never
-   run two leads against one local clone; worktrees share one `.git/`.
-3. **Stop rules**, before dispatching:
+1. **Resume** first: `git worktree prune`, then
+   `gh issue list --label lead:<self>`. Each claim with a draft PR goes back to
+   a worker on that PR's branch. A claim with no PR is released: drop the
+   assignee and the label.
+2. List unblocked `ready` issues (optionally filtered by milestone:
+   `gh issue list --milestone "<name>" --label ready`).
+3. **Claim**: self-assign and add `lead:<self>`. If another lead already holds
+   it, pick another. Never run two leads against one local clone; worktrees
+   share one `.git/`.
+4. **Stop rules**, before dispatching:
    - `design` issues go to the user. Do not reinterpret one to make it
      implementable.
    - New user-facing surface (command, flag, output format, config key): show
      the user an example invocation and output, and get a yes first.
    - Ask-first items in the repo's agent doc go to the user.
-4. **Dispatch** with the template in
+5. **Dispatch** with the template in
    [references/worker-prompt.md](references/worker-prompt.md).
 
 - **Isolation.** Every worker gets its own worktree. In Claude Code, pass
@@ -204,6 +211,10 @@ squash subject is the issue title.
 Re-run the full gate on the resolved tree before pushing.
 
 ## 7. Cleanup: every merge
+
+The merge closes the issue, which ends the claim. Abandoning an issue instead
+releases it: drop the assignee and `lead:<self>`, and comment with the branch
+link. The user frees a dead lead's claim the same way.
 
 1. `git worktree remove <path>`. Check `git status` first; use `--force` only
    for build residue.
