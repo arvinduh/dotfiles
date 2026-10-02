@@ -6,7 +6,8 @@
 #   home:    target path on both Linux and Windows.
 #   linux:   target path override for Linux/WSL.
 #   windows: target path override for Windows.
-#   cloud:   set to true to also link in Claude Code cloud sessions.
+#   cloud:   set to true to also link in Claude Code cloud sessions, at the
+#            linux target.
 
 # --- agents: one copy of directives and skills, linked into each tool ---------
 

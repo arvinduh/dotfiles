@@ -110,7 +110,8 @@ python3 ~/.dotfiles/link.py --platform cloud
 ```
 
 `--platform cloud` links only the entries marked `cloud` in `link.py`: the agent
-directives and skills, Claude's settings, and `format-file`.
+directives and skills, Claude's settings, and the `format-file` and `stop-gate`
+hooks. Cloud is Linux, so an entry's `linux` target wins over `home`.
 
 A SessionStart hook in `claude/settings.json` pulls and relinks at the start of
 every cloud session; outside the cloud it does nothing.

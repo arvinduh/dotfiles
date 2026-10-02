@@ -75,7 +75,8 @@ def resolve(
   pairs: list[tuple[pathlib.Path, pathlib.Path]] = []
   for entry in links:
     if platform == "cloud":
-      raw = entry.get("home") if entry.get("cloud") else None
+      linux = entry.get("linux", entry.get("home"))
+      raw = linux if entry.get("cloud") else None
     else:
       raw = entry.get(platform, entry.get("home"))
     if not isinstance(raw, str):
