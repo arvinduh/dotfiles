@@ -2,8 +2,8 @@
 name: rust-guide
 description: >-
   Personal Rust engineering standard — 2-space/80-col rustfmt, module-only
-  imports with qualified paths, UCS trait calls, thiserror error hierarchies
-  that mirror the module tree, gatekeeper visibility, clippy lint baseline, and
+  imports with qualified paths, UCS trait calls, minimal errors (reuse before
+  defining), thin clap CLIs over a granular library, gatekeeper visibility, clippy lint baseline, and
   a lint-driven cleanup workflow. Use this whenever you write, edit, review,
   refactor, or clean up Rust (.rs files, Cargo.toml, rustfmt/clippy config),
   even for a one-line fix or when the user only says "clean up the code" in a
@@ -140,36 +140,36 @@ use crate::web::window;
 - Derives are qualified too: `#[derive(Debug, thiserror::Error)]`,
   `#[derive(serde::Deserialize)]`.
 
-### C. Error hierarchy
+### C. Errors
 
-Errors mirror the module tree. Leaves own their failures; parents aggregate.
+Each module fails with the narrowest type that says what went wrong. A custom
+error is the exception, not the default.
 
-```text
-app::Error            (#[from] web::Error, ...)
-  web::Error          (#[from] window::Error, #[from] canvas::Error)
-    window::Error     (leaf: only what window can fail with)
-    canvas::Error     (leaf)
-```
+- **Reuse an existing error when it is the only failure.** A module that can
+  only fail with `io::Error` returns `io::Result<T>`; no wrapper enum.
+- **Define an `Error` enum only when it adds information:** a genuinely new
+  failure (a variant carrying the data needed to act on it, never a
+  pre-formatted `String`), or a module that raises several error types and
+  needs one return type. Aggregate those with
+  `#[error(transparent)] Io(#[from] io::Error)`; no hand-written `impl From`.
+- **One definition per error.** When sibling modules raise the same custom
+  error, define it once in the parent's `error.rs` (`module/error.rs`, declared
+  by `module.rs`) and have the siblings import it. No `error.rs` otherwise, and
+  no crate-wide catch-all enum unless a real caller needs to match across
+  subsystems.
+- No stutter: `parser::Error`, never `parser::ParserError`.
+- If the repo forbids `thiserror` (see §0), keep the same shape and write
+  `Display`/`Error`/`From` by hand.
 
 ```rust
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
   #[error(transparent)]
-  Window(#[from] window::Error),
-  #[error("canvas element `{id}` not found")]
-  MissingCanvas { id: String },
+  Io(#[from] io::Error),
+  #[error("manifest `{path}` has no `[package]` table")]
+  MissingPackage { path: path::PathBuf },
 }
 ```
-
-- One `pub enum Error` per module that can fail. Never import a sibling's error;
-  the parent is the only module that knows both.
-- Parents aggregate with `#[error(transparent)] X(#[from] x::Error)`. No hand
-  written `impl From`.
-- No stutter: `window::Error`, never `window::WindowError`.
-- Each variant carries the data needed to act on it, not a pre-formatted
-  `String`.
-- If the repo forbids `thiserror` (see §0), keep the same shape and write
-  `Display`/`Error`/`From` by hand.
 
 ### D. Visibility as gatekeeper
 
@@ -209,74 +209,55 @@ pub enum Error {
 
 ### H. Binary & CLI architecture
 
-- **Process Host Pattern (`main.rs`):** `main.rs` is the process runtime
-  boundary. It owns process-level side effects: terminal capability detection
-  (`NO_COLOR`, `CLICOLOR_FORCE`, TTY checks), panic hooks
-  (`std::panic::set_hook`), signal handling (Ctrl+C), and calling
-  `Cli::parse()`.
-- **No Destructor Bypass:** `main` must return `std::process::ExitCode` or a
-  type implementing `std::process::Termination`. `std::process::exit(code)` is
-  **banned** in library and adapter code because it terminates without running
-  Rust destructors (`Drop`), leaking temporary directories, file locks, or IPC
-  handles.
-- **`cli` Belongs to the Binary, Not `lib.rs`:** In a dual-target project
-  (`src/lib.rs` + `src/main.rs`), `src/cli/` is declared via `mod cli;` inside
-  `src/main.rs`, **never** in `src/lib.rs`.
-  - `src/cli/` imports the library (`use <crate>::engine::...;`), adapting
-    terminal flags into library calls.
-  - `src/lib.rs` has **zero** knowledge of `cli` and zero dependency on `clap`.
-    This compiler-enforces unidirectional layering: library code cannot import
-    CLI adapters even by accident, and external library consumers never compile
-    CLI parsing code.
-- **Modular Command Adapters (`src/cli/`):** Avoid monolithic `cli.rs` files.
-  Co-locate each subcommand's Clap `#[derive(Args)]` struct with its execution
-  adapter in `src/cli/<cmd>.rs`. Top-level `src/cli/mod.rs` only defines global
-  flags and matches the `Commands` enum to dispatch:
+- **Layering.** `main.rs` → `cli` → (`ui` when needed, and the library). The
+  library never depends on `cli` or `ui`, never prints, and never exits.
+
+  ```text
+  main.rs (mod cli;)  ──►  src/cli/  ──►  src/cli/ui/ (optional)
+                               │
+                               └──────►  <crate> library
+  ```
+
+- **The library exposes granular, meaningful functions and types; `cli`
+  orchestrates.** Pipelines (find, validate, transform, write), progress, and
+  output live in the command's `run`. `cli` owns the lifetime of every object a
+  run creates. Library functions return data; they do not decide what the user
+  sees.
+- **`cli` belongs to the binary.** Declare `mod cli;` in `src/main.rs`, never
+  in `src/lib.rs`; the library has zero dependency on `clap`.
+- **One file per subcommand.** `src/cli/<cmd>.rs` holds its `#[derive(clap::Args)]`
+  struct and an inherent `run(self)`. Commands are `cmd::Args::run`, not free
+  `run(args)` functions.
+- **No wrapper struct without global flags.** When the base command has no
+  flags of its own, the `clap::Parser` is the subcommand enum itself:
 
   ```rust
-  // src/cli/init.rs: command-specific arguments and execution adapter
-  #[derive(clap::Args)]
-  pub struct InitArgs {
-    #[arg(short, long)]
-    pub force: bool,
-  }
-
-  pub fn run(args: InitArgs) -> Result<(), fml::Error> {
-    fml::engine::init(args.force)
-  }
-
-  // src/cli/mod.rs: top-level parser and subcommand dispatch
-  pub mod init;
-  pub mod solve;
+  // src/cli.rs: command routing only
+  mod ingest;
 
   #[derive(clap::Parser)]
-  pub struct Cli {
-    #[command(subcommand)]
-    pub command: Commands,
+  #[command(name = "grade", version, about = "...")]
+  pub enum Args {
+    Ingest(ingest::IngestArgs),
   }
 
-  #[derive(clap::Subcommand)]
-  pub enum Commands {
-    Init(init::InitArgs),
-    Solve(solve::SolveArgs),
-  }
-
-  pub fn run(cli: Cli) -> Result<(), fml::Error> {
-    match cli.command {
-      Commands::Init(args) => init::run(args),
-      Commands::Solve(args) => solve::run(args),
+  impl Args {
+    pub fn run(self) -> Result<(), grader::Error> {
+      match self {
+        Self::Ingest(args) => args.run(),
+      }
     }
   }
 
-  // src/main.rs: Process Host with explicit, exhaustively matched exit codes
+  // src/main.rs: process host
   mod cli;
 
-  use clap::Parser;
   use std::process::ExitCode;
 
+  use clap::Parser;
+
   fn main() -> ExitCode {
-    let cli = cli::Cli::parse();
-    match cli::run(cli) {
+    match cli::Args::parse().run() {
       Ok(()) => ExitCode::SUCCESS,
       Err(err) => {
         eprintln!("[ERROR] {err}");
@@ -286,26 +267,25 @@ pub enum Error {
   }
   ```
 
-  For multi-code tools (e.g. formatters/linters distinguishing clean vs
-  violations vs error), matching the status enum directly preserves
-  compiler-enforced exhaustiveness:
-
-  ```rust
-  fn main() -> ExitCode {
-    let cli = cli::Cli::parse();
-    match cli::run(cli) {
-      ExitStatus::Clean => ExitCode::SUCCESS,
-      ExitStatus::Violations => ExitCode::from(1),
-      ExitStatus::Error => ExitCode::from(2),
-    }
-  }
-  ```
-
-- **Unidirectional Layering:**
-
-  ```text
-  main.rs (mod cli;)  ──►  src/cli/  ──►  <crate>::lib  ──►  <crate>::errors
-  ```
+  Add a `struct Cli { #[command(subcommand)] .. }` wrapper only once a global
+  flag exists. A multi-code tool (clean / violations / error) returns its
+  status enum from `run` and `main` matches it exhaustively onto `ExitCode`.
+- **Process host (`main.rs`).** Owns process-level side effects: argument
+  parsing, terminal capability detection (`NO_COLOR`, `CLICOLOR_FORCE`), the
+  log subscriber, panic hooks, and signal handling. `main` returns
+  `ExitCode`; `std::process::exit` is banned outside `main` because it skips
+  destructors.
+- **Help styling.** Give the parser cargo-style colored help with
+  `#[command(styles = STYLES)]` and a `clap::builder::Styles` constant; clap
+  disables it for non-TTY output and `NO_COLOR` on its own.
+- **Logging, not printing, for internals.** The library emits diagnostics
+  through the `log` facade (`log::debug!`, `log::info!`); the binary installs
+  the subscriber in `main` and keeps it quiet by default (`-v` or `RUST_LOG`
+  turns it up). User-facing output is printed only by `cli`.
+- **Test the library, not the binary.** Behaviour is tested through library
+  functions; integration tests in `tests/` call the public API. Spawning the
+  binary is reserved for the few things only the process shows (exit codes,
+  argument parsing).
 
 ## 4. Cleanup workflow
 
@@ -320,7 +300,7 @@ Use this when asked to "clean up", "tidy", or bring a crate up to standard.
 3. **Plan by lint, not by file.** One commit (or PR) per lint or per mechanical
    transform. Order: machine-applicable first
    (`cargo clippy --fix -- -W clippy::<lint>`), then hand fixes, then structural
-   changes (error hierarchy, imports, module splits).
+   changes (errors, imports, module splits).
 4. **Turn the lint on in the same change that clears it**, so it can't come
    back.
 5. **Never blanket-suppress.** A remaining site gets a narrowly scoped
@@ -335,7 +315,7 @@ the tree is one reviewable idea even if it touches 300 lines.
 
 - [ ] Repo standard checked first; no unrequested drift "fixes".
 - [ ] Modules imported, items qualified; traits named, never `as _` or glob.
-- [ ] New failure modes live in the leaf `Error`; parents use `#[from]`.
+- [ ] Errors reuse existing types; a custom `Error` only adds information.
 - [ ] Nothing more visible than a current caller needs.
 - [ ] No speculative derives, helpers, features, or dependencies.
 - [ ] Every new file has `//!`; every public item has `///`.
