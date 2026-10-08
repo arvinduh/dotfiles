@@ -187,6 +187,11 @@ pub enum Error {
 - No derives, getters, constructors, features, or dependencies until code in the
   current change uses them. Exception: `Debug` on public types.
 - Delete code a change makes unreachable in the same change.
+- **One fact, one place.** Facts keyed by the same name (a binary, a
+  language) live in one descriptor row per entity, not in parallel tables kept
+  in sync by an agreement test. Anything that restates another source (globs
+  from an extension list, an ordering from a registry) is derived from it, not
+  written by hand.
 
 ### F. Documentation
 
