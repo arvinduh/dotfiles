@@ -125,6 +125,10 @@ home = "~/.config/markdownlint/.markdownlint-cli2.jsonc"
 source = "mise/config.toml"
 home = "~/.config/mise/config.toml"
 
+[[link]]
+source = "windows/checkstyle.cmd"
+windows = "~/.local/bin/checkstyle.cmd"
+
 # --- shell and git ------------------------------------------------------------
 
 [[link]]
