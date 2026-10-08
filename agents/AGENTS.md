@@ -56,6 +56,10 @@ context pollution.
 - **Index & Header First:** Inspect module-level documentation (`//!`), struct
   definitions, and public entry points first. Do not inspect private
   implementation bodies unless active logic changes are required.
+- **Scripts go through the file tool:** write any multi-line script or
+  replacement text with your file-writing tool, then run it. Shell heredocs are
+  not reliable across harnesses (Git Bash on Windows strips backslashes), and a
+  mangled escape corrupts the edit silently.
 
 ### B. Single-Hypothesis Verification
 
