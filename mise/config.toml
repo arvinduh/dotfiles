@@ -1,0 +1,43 @@
+# mise — every portable dev toolchain and CLI, declared once.
+#
+# Owns: language runtimes (except Rust → rustup, Python → uv), dev CLIs, and
+# Node-based formatters. winget owns OS-coupled software: Microsoft/Windows
+# apps, runtimes, anything with services, drivers, or Explorer integration.
+
+[tools]
+# --- language toolchains -----------------------------------------------------
+go = "1.27"
+node = "26"
+# mise's Windows version aliases are plain files, so JAVA_HOME gets its own
+# junction (~/.local/share/jdk-21) that each install repoints at itself.
+java = { version = "microsoft-21", postinstall = 'cmd /c "(if exist %USERPROFILE%\.local\share\jdk-21 rmdir %USERPROFILE%\.local\share\jdk-21) & mklink /J %USERPROFILE%\.local\share\jdk-21 %MISE_TOOL_INSTALL_PATH%"' }
+uv = "latest"
+
+# --- C toolchain for Rust's gnullvm target -------------------------------------
+"github:mstorsjo/llvm-mingw" = { version = "latest", asset_pattern = "llvm-mingw-*-ucrt-x86_64.zip" }
+
+# --- linters and formatters (used by format-file / stop-gate hooks) ----------
+golangci-lint = "latest"
+# aqua's checkstyle ships no Windows binary; take the jar (see windows/checkstyle.cmd).
+"github:checkstyle/checkstyle" = { version = "latest", asset_pattern = "checkstyle-*-all.jar" }
+shellcheck = "latest"
+shfmt = "latest"
+taplo = "latest"
+"npm:prettier" = "latest"
+"npm:markdownlint-cli2" = "latest"
+"npm:@biomejs/biome" = "latest"
+"npm:google-java-format" = "latest"
+
+# --- shell and terminal CLIs -------------------------------------------------
+ripgrep = "latest"
+fd = "latest"
+bat = "latest"
+fzf = "latest"
+delta = "latest"
+"github:eza-community/eza" = "latest"
+lazygit = "latest"
+zoxide = "latest"
+"github:boyter/scc" = "latest"
+typst = "latest"
+starship = "latest"
+gh = "latest"

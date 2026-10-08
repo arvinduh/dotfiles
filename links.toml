@@ -119,6 +119,12 @@ windows = "%APPDATA%/ruff/ruff.toml"
 source = "format/.markdownlint-cli2.jsonc"
 home = "~/.config/markdownlint/.markdownlint-cli2.jsonc"
 
+# --- dev toolchains: mise owns every portable runtime and CLI -----------------
+
+[[link]]
+source = "mise/config.toml"
+home = "~/.config/mise/config.toml"
+
 # --- shell and git ------------------------------------------------------------
 
 [[link]]
