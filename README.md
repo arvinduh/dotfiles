@@ -20,7 +20,8 @@ format/      one global config per formatter, and format-file
 git/         git config and global ignore
 zsh/         zsh (conf.d/ modules, p10k prompt)
 atuin/ bat/  shell history sync; `cat` with syntax highlighting
-windows/     PowerShell profile, starship prompt, winget package list
+mise/        every portable dev toolchain and CLI, declared once
+windows/     PowerShell profile, starship, winget list, env + drift audit
 ```
 
 ## Bootstrap: WSL / Linux
@@ -57,14 +58,50 @@ symlinks don't need an elevated shell. Then, in PowerShell 7 (`pwsh`):
 ```powershell
 git clone https://github.com/arvinduh/dotfiles $env:USERPROFILE\.dotfiles
 cd $env:USERPROFILE\.dotfiles
+# Env vars first, so every tool below installs under ~/.local and ~/.cache.
+powershell -ExecutionPolicy Bypass -File windows\env.ps1
 Get-Content windows\packages.txt | % { ($_ -replace '#.*','').Trim() } | ? { $_ } |
   % { winget install --id $_ --exact --silent --accept-package-agreements --accept-source-agreements }
-Install-Module PSFzf -Scope CurrentUser -Force
-uv tool install ruff basedpyright; uv tool update-shell
-rustup component add rust-analyzer rustfmt clippy
-npm install -g prettier markdownlint-cli2 @taplo/cli
-uv run link.py
 ```
+
+Open a new terminal so the environment applies, then:
+
+```powershell
+mise install                  # toolchains, linters, CLIs from mise/config.toml
+uv python install 3.14 --default --preview-features python-install-default
+foreach ($t in 'ruff', 'basedpyright', 'yamllint', 'git-filter-repo') { uv tool install $t }
+rustup default stable-x86_64-pc-windows-gnullvm
+rustup component add rust-analyzer rustfmt clippy
+Install-Module PSFzf -Scope CurrentUser -Force
+python link.py
+pwsh windows\env.ps1          # drop any PATH entries the installers added
+```
+
+Ownership: winget holds OS-coupled software and GUI apps (`packages.txt`),
+mise every portable toolchain and CLI, uv Python, rustup Rust. Nothing else
+installs dev tools.
+
+## Staying clean: Windows
+
+`windows/env.psd1` is the whole user environment, PATH included, and
+`windows/env.ps1` makes the registry match it exactly (`-Check` to preview).
+`windows/audit.ps1` reports, without changing anything, where the machine has
+drifted: environment, unexpected entries in `~` (vs `windows/home.txt`), winget
+packages vs `packages.txt` in both directions, and dead Machine PATH entries.
+A weekly task runs it; the profile prints one line when it found something.
+
+```powershell
+$audit = New-ScheduledTaskAction -Execute conhost.exe -Argument ((
+  '--headless "{0}\Microsoft\WindowsApps\pwsh.exe" -NoProfile -File ' +
+  '"{1}\.dotfiles\windows\audit.ps1" -Report "{1}\.local\state\audit.txt"'
+) -f $env:LOCALAPPDATA, $env:USERPROFILE)
+Register-ScheduledTask dotfiles-audit -Action $audit -Settings (
+  New-ScheduledTaskSettingsSet -StartWhenAvailable -AllowStartIfOnBatteries
+) -Trigger (New-ScheduledTaskTrigger -Weekly -DaysOfWeek Sunday -At 12pm)
+```
+
+To fix drift: install or uninstall to match `packages.txt` (or edit it), move or
+allowlist stray `~` entries, and re-run `pwsh windows\env.ps1`.
 
 ## VS Code
 
