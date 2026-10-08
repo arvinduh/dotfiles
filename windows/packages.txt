@@ -17,3 +17,37 @@ LLVM.LLVM                        # clangd, MSVC-target clang
 Microsoft.VisualStudioCode
 Google.Antigravity
 Microsoft.WSL
+
+# --- apps --------------------------------------------------------------------
+Anthropic.Claude
+Google.GeminiDesktop
+Microsoft.Office
+Microsoft.Edge                   # OS component; cannot be removed
+Bitdefender.Bitdefender
+voidtools.Everything
+CPUID.HWMonitor
+RARLab.WinRAR
+VideoLAN.VLC
+Spotify.Spotify
+Telegram.TelegramDesktop
+Zoom.Zoom.EXE
+Valve.Steam
+ppy.osu
+
+# --- runtimes: pulled in as dependencies, listed so none is unknown ----------
+Microsoft.AppInstaller
+Microsoft.DirectX
+Microsoft.DotNet.DesktopRuntime.8
+Microsoft.DotNet.DesktopRuntime.9
+Microsoft.DotNet.Native.Runtime
+Microsoft.GameInput
+Microsoft.UI.Xaml.2.8
+Microsoft.VCLibs.14
+Microsoft.VCLibs.Desktop.14
+Microsoft.VCRedist.2015+.x64
+Microsoft.VCRedist.2015+.x86
+Microsoft.WindowsAppRuntime.1.4
+Microsoft.WindowsAppRuntime.1.7
+Microsoft.WindowsAppRuntime.1.8
+Microsoft.WindowsAppRuntime.2
+Microsoft.XNARedist              # Terraria
