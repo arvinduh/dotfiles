@@ -1,41 +1,19 @@
-# Windows package ids for winget. `#` comments and blanks ignored.
-# Install with the loop in README.md; winget skips anything already installed,
-# so this is safe to re-run.
-#
-# This is the Windows half of packages.txt. prettier and markdownlint-cli2 come
-# from npm on both sides (see README.md).
+# Windows package ids for winget: OS-coupled software, GUI apps, and the
+# bootstrap managers. Portable dev toolchains and CLIs live in mise/config.toml.
+# `#` comments and blanks ignored. Install with the loop in README.md; winget
+# skips anything already installed. audit.ps1 diffs this list against what
+# winget reports installed, both ways.
 
-# --- shell -------------------------------------------------------------------
-Microsoft.PowerShell             # PS 7.x — ConciseView errors, PSReadLine 2.3+
-Starship.Starship                # prompt; see windows/starship.toml
-
-# --- coreutils replacements --------------------------------------------------
-eza-community.eza                # ls
-sharkdp.bat                      # cat
-sharkdp.fd                       # find
-BurntSushi.ripgrep.MSVC          # grep
-ajeetdsouza.zoxide               # cd
-junegunn.fzf                     # fuzzy finder; powers PSFzf's ^t and ^r
-
-# --- git ---------------------------------------------------------------------
-Git.Git
-dandavison.delta                 # diff pager
-JesseDuffield.lazygit            # git TUI (note the capital D: --exact is case-sensitive)
-GitHub.cli
-
-# --- editor ------------------------------------------------------------------
-Microsoft.VisualStudioCode
-
-# --- C/C++ -------------------------------------------------------------------
-LLVM.LLVM                        # clangd + clang-format
-
-# --- node --------------------------------------------------------------------
-# Not for writing JS: prettier and markdownlint-cli2 are npm packages.
-OpenJS.NodeJS.LTS
-
-# --- python / rust -----------------------------------------------------------
-astral-sh.uv                     # plus `uv tool install ruff basedpyright`
-Rustlang.Rustup                  # rust-analyzer + rustfmt, matched to the toolchain
-
-# --- everyday ----------------------------------------------------------------
+# --- shell and terminal ------------------------------------------------------
+Microsoft.PowerShell
+Microsoft.WindowsTerminal
 DEVCOM.JetBrainsMonoNerdFont     # prompt and statusline glyphs need this
+
+# --- dev: OS-coupled or bootstrap --------------------------------------------
+Git.Git                          # credential manager + Explorer integration
+jdx.mise                         # every other toolchain and CLI
+Rustlang.Rustup                  # runs rustup-init; rustup self-manages after
+LLVM.LLVM                        # clangd, MSVC-target clang
+Microsoft.VisualStudioCode
+Google.Antigravity
+Microsoft.WSL
