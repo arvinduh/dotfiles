@@ -54,6 +54,13 @@ Set-PsFzfOption -PSReadlineChordProvider 'Ctrl+t' -PSReadlineChordReverseHistory
 # --- cd -----------------------------------------------------------------------
 Invoke-Expression (& { (zoxide init powershell | Out-String) })
 
+# --- drift --------------------------------------------------------------------
+# The weekly audit task (windows/audit.ps1) leaves this file only when the
+# machine drifted from the dotfiles. One Test-Path costs nothing at startup.
+if (Test-Path "$HOME\.local\state\audit.txt") {
+  Write-Host 'drift since last audit: Get-Content ~\.local\state\audit.txt' -ForegroundColor Yellow
+}
+
 # No auto-venv. The old 5.1 profile shadowed Set-Location/Push-Location/
 # Pop-Location to activate one; that was for pip. `uv run` resolves the project
 # venv with no activation at all, and `uv run --with <pkg>` covers ad-hoc use.
