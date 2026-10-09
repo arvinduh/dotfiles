@@ -21,6 +21,7 @@
       "colorScheme": "Dark+",
       "font": { "face": "JetBrainsMono Nerd Font" },
       "opacity": 60,
+      "startingDirectory": "%USERPROFILE%",
       "useAcrylic": true
     },
     "list": [
@@ -34,7 +35,8 @@
         "guid": "{21a5dc9b-5470-5ac6-ace0-f0ce784bc324}",
         "hidden": false,
         "name": "Ubuntu",
-        "source": "Microsoft.WSL"
+        "source": "Microsoft.WSL",
+        "startingDirectory": "~"
       },
       {
         "commandline": "%SystemRoot%\\System32\\cmd.exe",
