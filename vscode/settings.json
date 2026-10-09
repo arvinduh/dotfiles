@@ -17,7 +17,7 @@
     "rgba(255,255,64,0.1)",
     "rgba(127,255,127,0.1)",
     "rgba(255,127,255,0.1)",
-    "rgba(79,236,236,0.1)"
+    "rgba(79,236,236,0.1)",
   ],
 
   // --- Indentation and whitespace -------------------------------------------
@@ -39,14 +39,20 @@
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "[python]": {
     "editor.defaultFormatter": "charliermarsh.ruff",
-    "editor.codeActionsOnSave": { "source.organizeImports": "explicit" }
+    "editor.codeActionsOnSave": { "source.organizeImports": "explicit" },
   },
   "[rust]": { "editor.defaultFormatter": "rust-lang.rust-analyzer" },
   "[c]": { "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd" },
   "[cpp]": {
-    "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd"
+    "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd",
+  },
+  "[html]": {
+    "prettier.printWidth": 80,
   },
   "[toml]": { "editor.defaultFormatter": "tamasfe.even-better-toml" },
+  "evenBetterToml.schema.associations": {
+    "^(.*\\.)?rustfmt\\.toml$": "https://schemastore.org",
+  },
 
   // --- Language tooling -----------------------------------------------------
   "python.analysis.typeCheckingMode": "standard",
@@ -60,9 +66,15 @@
     "**/.venv": true,
     "**/.vscode": true,
     "**/dist": true,
-    "**/target": true
+    "**/target": true,
   },
 
   // --- Remote ---------------------------------------------------------------
-  "remote.autoForwardPortsSource": "hybrid"
+  "remote.autoForwardPortsSource": "hybrid",
+  "github.copilot.enable": {
+    "*": false,
+    "plaintext": false,
+    "markdown": false,
+    "scminput": false,
+  },
 }
