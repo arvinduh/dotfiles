@@ -75,6 +75,7 @@ rustup component add rust-analyzer rustfmt clippy
 Install-Module PSFzf -Scope CurrentUser -Force
 python link.py
 uv run windows\icons\icons.py apply   # Fluent Color folder icons (icons.toml)
+pwsh windows\shortcuts.ps1            # Start Menu entries for portable winget apps
 # elevated, in Windows PowerShell 5.1: ads, web search, background use off
 powershell -ExecutionPolicy Bypass -File windows\defaults.ps1
 pwsh windows\env.ps1          # drop any PATH entries the installers added
