@@ -74,6 +74,7 @@ rustup default stable-x86_64-pc-windows-gnullvm
 rustup component add rust-analyzer rustfmt clippy
 Install-Module PSFzf -Scope CurrentUser -Force
 python link.py
+uv run windows\icons\icons.py apply   # Fluent Color folder icons (icons.toml)
 pwsh windows\env.ps1          # drop any PATH entries the installers added
 ```
 
