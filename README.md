@@ -86,8 +86,8 @@ installs dev tools.
 `windows/env.psd1` is the whole user environment, PATH included, and
 `windows/env.ps1` makes the registry match it exactly (`-Check` to preview).
 `windows/audit.ps1` reports, without changing anything, where the machine has
-drifted: environment, unexpected entries in `~` (vs `windows/home.txt`), winget
-packages vs `packages.txt` in both directions, and dead Machine PATH entries.
+drifted: environment, winget packages vs `packages.txt` in both directions, and
+dead Machine PATH entries.
 A weekly task runs it; the profile prints one line when it found something.
 
 ```powershell
@@ -100,8 +100,8 @@ Register-ScheduledTask dotfiles-audit -Action $audit -Settings (
 ) -Trigger (New-ScheduledTaskTrigger -Weekly -DaysOfWeek Sunday -At 12pm)
 ```
 
-To fix drift: install or uninstall to match `packages.txt` (or edit it), move or
-allowlist stray `~` entries, and re-run `pwsh windows\env.ps1`.
+To fix drift: install or uninstall to match `packages.txt` (or edit it), and
+re-run `pwsh windows\env.ps1`.
 
 ## VS Code
 

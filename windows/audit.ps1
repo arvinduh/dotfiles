@@ -5,7 +5,6 @@ Reports drift from the declared Windows setup; exits 1 when anything drifted.
 .DESCRIPTION
 Checks the machine against this repo, report-only (it never changes anything):
   env     HKCU\Environment vs env.psd1 (via env.ps1 -Check)
-  home    entries in ~ vs home.txt
   winget  installed packages vs packages.txt, both ways
   path    Machine PATH entries that point nowhere
 
@@ -22,11 +21,6 @@ function Read-List([string]$file) {
 $findings = @(
   & (Join-Path $PSScriptRoot 'env.ps1') -Check | Where-Object { $_ -ne 'environment matches env.psd1' } |
     ForEach-Object { "env     $_" }
-
-  $allowed = @(Read-List (Join-Path $PSScriptRoot 'home.txt'))
-  $skip = [IO.FileAttributes]::Hidden -bor [IO.FileAttributes]::System
-  Get-ChildItem -Force $HOME | Where-Object { -not ($_.Attributes -band $skip) -and $allowed -notcontains $_.Name } |
-    ForEach-Object { "home    unexpected ~\$($_.Name)" }
 
   # `winget export` emits JSON; `winget list` truncates ids to fit the console.
   $declared = @(Read-List (Join-Path $PSScriptRoot 'packages.txt'))
