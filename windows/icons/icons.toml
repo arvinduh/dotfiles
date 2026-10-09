@@ -1,0 +1,20 @@
+# Folder icons in the Windows 11 style: Fluent UI System Icons' Color variants
+# (MIT, Microsoft) at a pinned commit. Each value names a Fluent asset folder
+# in github.com/microsoft/fluentui-system-icons/assets that has a *_color.svg.
+# `icons.py build` renders <glyph>.ico here; `icons.py apply` writes each
+# folder's desktop.ini with only an icon, so Explorer shows the real name.
+
+fluent_commit = "cd332ec1f90cda2fad16f86754f8da52f1e9ab30"
+
+# Top level only: icons mark where the areas start; folders inside stay plain.
+# folder relative to ~ ("." is ~ itself) = Fluent asset
+[folders]
+"." = "Home"
+school = "Book Open Lightbulb"
+work = "Briefcase"
+personal = "Person Heart"
+media = "Library"
+games = "Trophy"
+archive = "Vault"
+prj = "Code"
+downloads = "imageres.dll,-184"  # Windows' own Downloads arrow
