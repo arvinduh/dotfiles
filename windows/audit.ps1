@@ -5,6 +5,7 @@ Reports drift from the declared Windows setup; exits 1 when anything drifted.
 .DESCRIPTION
 Checks the machine against this repo, report-only (it never changes anything):
   env     HKCU\Environment vs env.psd1 (via env.ps1 -Check)
+  defaults  Windows default overrides vs defaults.ps1 (via defaults.ps1 -Check)
   winget  installed packages vs packages.txt, both ways
   path    Machine PATH entries that point nowhere
 
@@ -21,6 +22,9 @@ function Read-List([string]$file) {
 $findings = @(
   & (Join-Path $PSScriptRoot 'env.ps1') -Check | Where-Object { $_ -ne 'environment matches env.psd1' } |
     ForEach-Object { "env     $_" }
+
+  & (Join-Path $PSScriptRoot 'defaults.ps1') -Check | Where-Object { $_ -ne 'defaults match defaults.ps1' } |
+    ForEach-Object { "default $_" }
 
   # `winget export` emits JSON; `winget list` truncates ids to fit the console.
   $declared = @(Read-List (Join-Path $PSScriptRoot 'packages.txt'))

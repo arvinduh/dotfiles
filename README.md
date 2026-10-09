@@ -75,6 +75,8 @@ rustup component add rust-analyzer rustfmt clippy
 Install-Module PSFzf -Scope CurrentUser -Force
 python link.py
 uv run windows\icons\icons.py apply   # Fluent Color folder icons (icons.toml)
+# elevated, in Windows PowerShell 5.1: ads, web search, background use off
+powershell -ExecutionPolicy Bypass -File windows\defaults.ps1
 pwsh windows\env.ps1          # drop any PATH entries the installers added
 ```
 
@@ -87,8 +89,9 @@ installs dev tools.
 `windows/env.psd1` is the whole user environment, PATH included, and
 `windows/env.ps1` makes the registry match it exactly (`-Check` to preview).
 `windows/audit.ps1` reports, without changing anything, where the machine has
-drifted: environment, winget packages vs `packages.txt` in both directions, and
-dead Machine PATH entries.
+drifted: environment, Windows default overrides (`windows/defaults.ps1`: ads,
+web search, Edge preloading, telemetry level, Recall), winget packages vs
+`packages.txt` in both directions, and dead Machine PATH entries.
 A weekly task runs it; the profile prints one line when it found something.
 
 ```powershell
@@ -101,8 +104,8 @@ Register-ScheduledTask dotfiles-audit -Action $audit -Settings (
 ) -Trigger (New-ScheduledTaskTrigger -Weekly -DaysOfWeek Sunday -At 12pm)
 ```
 
-To fix drift: install or uninstall to match `packages.txt` (or edit it), and
-re-run `pwsh windows\env.ps1`.
+To fix drift: install or uninstall to match `packages.txt` (or edit it), re-run
+`pwsh windows\env.ps1`, and re-run `windows\defaults.ps1` elevated.
 
 ## VS Code
 
