@@ -25,6 +25,7 @@ Microsoft.Office
 Microsoft.Edge                   # OS component; cannot be removed
 Bitdefender.Bitdefender
 voidtools.Everything
+OpenTabletDriver.OpenTabletDriver   # config: windows/opentabletdriver
 CPUID.HWMonitor
 RARLab.WinRAR
 VideoLAN.VLC

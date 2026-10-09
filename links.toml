@@ -166,3 +166,13 @@ windows = "%DOCUMENTS%/PowerShell/Microsoft.PowerShell_profile.ps1"
 [[link]]
 source = "windows/terminal.json"
 windows = "%LOCALAPPDATA%/Packages/Microsoft.WindowsTerminal_8wekyb3d8bbwe/LocalState/settings.json"
+
+# --- OpenTabletDriver: tablet mapping + the custom Wacom CTH-460 definition ---
+
+[[link]]
+source = "windows/opentabletdriver/settings.json"
+windows = "%LOCALAPPDATA%/OpenTabletDriver/settings.json"
+
+[[link]]
+source = "windows/opentabletdriver/CTH-460.json"
+windows = "%LOCALAPPDATA%/OpenTabletDriver/Configurations/CTH-460.json"
