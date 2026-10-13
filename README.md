@@ -70,7 +70,10 @@ Open a new terminal so the environment applies, then:
 mise install                  # toolchains, linters, CLIs from mise/config.toml
 uv python install 3.14 --default --preview-features python-install-default
 foreach ($t in 'ruff', 'basedpyright', 'yamllint', 'git-filter-repo') { uv tool install $t }
-rustup default stable-x86_64-pc-windows-gnullvm
+# gnullvm links with rust-lld, so no Visual Studio. Setting the host (not just
+# the default) makes rust-toolchain.toml pins resolve to gnullvm too.
+rustup set default-host x86_64-pc-windows-gnullvm
+rustup default stable
 rustup component add rust-analyzer rustfmt clippy
 Install-Module PSFzf -Scope CurrentUser -Force
 python link.py
@@ -81,9 +84,9 @@ powershell -ExecutionPolicy Bypass -File windows\defaults.ps1
 pwsh windows\env.ps1          # drop any PATH entries the installers added
 ```
 
-Ownership: winget holds OS-coupled software and GUI apps (`packages.txt`),
-mise every portable toolchain and CLI, uv Python, rustup Rust. Nothing else
-installs dev tools.
+Ownership: winget holds OS-coupled software and GUI apps (`packages.txt`), mise
+every portable toolchain and CLI, uv Python, rustup Rust. Nothing else installs
+dev tools.
 
 ## Staying clean: Windows
 
@@ -92,8 +95,8 @@ installs dev tools.
 `windows/audit.ps1` reports, without changing anything, where the machine has
 drifted: environment, Windows default overrides (`windows/defaults.ps1`: ads,
 web search, Edge preloading, telemetry level, Recall), winget packages vs
-`packages.txt` in both directions, and dead Machine PATH entries.
-A weekly task runs it; the profile prints one line when it found something.
+`packages.txt` in both directions, and dead Machine PATH entries. A weekly task
+runs it; the profile prints one line when it found something.
 
 ```powershell
 $audit = New-ScheduledTaskAction -Execute conhost.exe -Argument ((
