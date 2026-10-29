@@ -44,6 +44,10 @@ source = "format/.clippy.toml"
 home = "~/.clippy.toml"
 
 [[link]]
+source = "format/.shellcheckrc"
+home = "~/.shellcheckrc"
+
+[[link]]
 source = "format/rustfmt.toml"
 linux = "~/.config/rustfmt/rustfmt.toml"
 windows = "%APPDATA%/rustfmt/rustfmt.toml"
