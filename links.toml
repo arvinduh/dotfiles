@@ -1,4 +1,4 @@
-# links.toml — Declarative link definitions for link.py.
+# links.toml — Declarative link definitions for `ahok link`.
 #
 # Schema per entry:
 #   source:  path inside this repository. A trailing `/*` links each child into
