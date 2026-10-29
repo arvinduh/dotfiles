@@ -48,11 +48,20 @@ Set-PSReadLineOption -EditMode Windows
 # would also have meant two owners for one job.
 
 # ^t files, ^r history — the same two chords zsh binds through fzf.
-Import-Module PSFzf
-Set-PsFzfOption -PSReadlineChordProvider 'Ctrl+t' -PSReadlineChordReverseHistory 'Ctrl+r'
+foreach ($chord in @('Ctrl+t', 'Ctrl+r')) {
+    Set-PSReadLineKeyHandler -Chord $chord -ScriptBlock {
+      param($key, $arg)
+      Import-Module PSFzf -Global
+      Set-PsFzfOption -PSReadlineChordProvider 'Ctrl+t' -PSReadlineChordReverseHistory 'Ctrl+r'
+      if ($key.Key -eq [ConsoleKey]::R) { & (Get-Module PSFzf) { Invoke-FzfPsReadlineHandlerHistory } }
+      else { & (Get-Module PSFzf) { Invoke-FzfPsReadlineHandlerProvider } }
+    }
+  }
 
 # --- cd -----------------------------------------------------------------------
-Invoke-Expression (& { (zoxide init powershell | Out-String) })
+$zoxideCache = "$cacheDir\zoxide.ps1"
+if (-not (Test-Path $zoxideCache)) { & zoxide init powershell | Set-Content -Path $zoxideCache -Encoding utf8 }
+. $zoxideCache
 
 # --- drift --------------------------------------------------------------------
 # The weekly audit task (windows/audit.ps1) leaves this file only when the
