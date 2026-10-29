@@ -33,8 +33,8 @@ clang-format
 clang-tidy
 
 # --- node ---------------------------------------------------------------------
-# Not for writing JS: prettier and markdownlint-cli2, which format-file calls
-# for json/yaml/md, are npm packages.
+# Not for writing JS: prettier and markdownlint-cli2, which fml calls for
+# json/yaml/md, are npm packages.
 nodejs
 npm
 
