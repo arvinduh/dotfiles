@@ -23,11 +23,6 @@ indent_style = tab
 indent_size = 4
 max_line_length = unset
 
-# Markdown: two trailing spaces are a hard line break, so they cannot be
-# stripped. Prettier's proseWrap handles the wrapping instead.
-[*.md]
-trim_trailing_whitespace = false
-
 # Makefiles require literal tabs.
 [{Makefile,makefile,*.mk}]
 indent_style = tab
