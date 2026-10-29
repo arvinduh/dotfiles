@@ -19,6 +19,7 @@
 
     // --- Structure: kept on, these are the ones worth having ---------------
     "MD003": { "style": "atx" }, // # headings, never underline style
+    "MD009": { "br_spaces": 0 }, // hard breaks use a trailing backslash, not spaces
     "MD024": { "siblings_only": true }, // dup headings ok under different parents
     "MD029": { "style": "ordered" }, // 1. 2. 3. not 1. 1. 1.
     "MD033": false, // inline HTML — sometimes necessary
