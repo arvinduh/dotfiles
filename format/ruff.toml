@@ -27,15 +27,33 @@ select = [
   "ANN", # flake8-annotations — complete signatures
   "N",   # pep8-naming
   "TID", # flake8-tidy-imports — bans below
+  # Google Python Style Guide rules a linter can check:
+  "ARG",     # unused arguments (Google: `del` them, never rename)
+  "BLE001",  # no catch-all `except Exception`
+  "EXE",     # shebang only on executable files
+  "FURB129", # iterate files directly, not `.readlines()`
+  "G",       # logging takes %-patterns, never f-strings
+  "ICN001",  # conventional aliases only (np, pd)
+  "PLC0415", # imports at the top of the file
+  "PLW0603", # no `global` mutation
+  "RET505", "RET506", "RET507", "RET508", # no else after an exit
+  "S101",    # no assert outside tests
+  "T20",     # no print in libraries
+  "TD",      # TODO: <link> - <text>
+  "TRY002",  # raise specific exceptions
 ]
 ignore = [
   "E501", # line-too-long — the formatter owns width, the linter shouldn't nag
+  "TD002", # Google TODOs name a link, not an author
 ]
 
 [lint.per-file-ignores]
 # Google: test docstrings are optional.
-"*_test.py" = ["D"]
-"test_*.py" = ["D"]
+"*_test.py" = ["D", "S101"]
+"test_*.py" = ["D", "S101"]
+"conftest.py" = ["D", "S101"]
+# Entrypoints own console output.
+"{**/main.py,**/__main__.py,**/cli/**,scripts/**}" = ["T20"]
 
 [lint.pydocstyle]
 convention = "google"
