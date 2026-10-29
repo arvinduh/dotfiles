@@ -13,7 +13,11 @@
 # script. See docs/setup.md before adding anything here.
 
 # --- prompt ------------------------------------------------------------------
-Invoke-Expression (&starship init powershell)
+$cacheDir = "$HOME\.local\state\pwsh-cache"
+if (-not (Test-Path $cacheDir)) { $null = New-Item -ItemType Directory -Path $cacheDir -Force }
+$starshipCache = "$cacheDir\starship.ps1"
+if (-not (Test-Path $starshipCache)) { & starship init powershell --print-full-init | Set-Content -Path $starshipCache -Encoding utf8 }
+. $starshipCache
 
 # Collapse the finished prompt to a bare `>` once a command runs, so scrollback
 # is output rather than a column of repeated paths. p10k does this on WSL.
