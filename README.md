@@ -5,14 +5,15 @@ Personal config for **WSL2 / Linux** (zsh) and **native Windows** (PowerShell
 Markdown. Agent config (directives, skills, hooks, rules) lives in
 [arvinduh/agents](https://github.com/arvinduh/agents), cloned to `~/.agents`.
 
-`link.py` symlinks everything into place on Linux, Windows, and Claude Code
-cloud sessions from one table. It only links: it never installs anything, and
-moves any real file in the way to `<file>.bak-<timestamp>` first.
+[`ahok link`](https://github.com/arvinduh/ahok) symlinks everything into place
+on Linux, Windows, and Claude Code cloud sessions from one table,
+`links.toml`. It only links: it never installs anything, and moves any real
+file in the way to `<file>.bak-<time>` first.
 
 ## Layout
 
 ```text
-link.py      the link table and the script that applies it
+links.toml   the link table that `ahok link` applies
 vscode/      settings.json (VS Code and Antigravity) and extensions.txt
 format/      one global config per formatter
 git/         git config and global ignore
@@ -27,7 +28,9 @@ windows/     PowerShell profile, starship, winget list, env + drift audit
 ```bash
 git clone https://github.com/arvinduh/dotfiles ~/.dotfiles && cd ~/.dotfiles
 sed -e 's/#.*//' -e '/^\s*$/d' packages.txt | xargs sudo apt-get install -y
-python3 link.py
+curl -fsSL -o ~/.local/bin/ahok --create-dirs \
+  https://github.com/arvinduh/ahok/releases/latest/download/ahok-linux-x86_64
+chmod +x ~/.local/bin/ahok && ~/.local/bin/ahok link
 
 # zsh plugins
 mkdir -p ~/.local/share/zsh/plugins && cd ~/.local/share/zsh/plugins
@@ -74,7 +77,10 @@ rustup set default-host x86_64-pc-windows-gnullvm
 rustup default stable
 rustup component add rust-analyzer rustfmt clippy
 Install-Module PSFzf -Scope CurrentUser -Force
-python link.py
+New-Item -ItemType Directory -Force ~\.local\bin | Out-Null
+Invoke-WebRequest -OutFile ~\.local\bin\ahok.exe `
+  https://github.com/arvinduh/ahok/releases/latest/download/ahok-windows-x86_64.exe
+ahok link
 uv run windows\icons\icons.py apply   # Fluent Color folder icons (icons.toml)
 pwsh windows\shortcuts.ps1            # Start Menu entries for portable winget apps
 # elevated, in Windows PowerShell 5.1: ads, web search, background use off
@@ -130,7 +136,7 @@ code (Get-Content vscode\extensions.txt | % { '--install-extension', $_ })
 One `code` call installs the whole list; looping launches VS Code's CLI once per
 extension, which is slow and prints nothing between installs.
 
-On WSL, VS Code's user settings live on the Windows side, so run `link.py` from
+On WSL, VS Code's user settings live on the Windows side, so run `ahok link` from
 Windows for the editor.
 
 ## Formatting
@@ -142,8 +148,9 @@ from `format/`. Agent-side formatting hooks belong to arvinduh/agents.
 
 This repository is private, so a cloud environment's setup script needs
 credentials to clone it. After cloning, run
-`python3 ~/.dotfiles/link.py --platform cloud`, which links only the entries
-marked `cloud` in `links.toml`. Cloud is Linux, so an entry's `linux` target
+download ahok as in the Linux bootstrap and run `ahok link ~/.dotfiles`. It
+detects the cloud session and links only the entries marked `cloud` in
+`links.toml`. Cloud is Linux, so an entry's `linux` target
 wins over `home`.
 
 ## Keeping ~ clean
@@ -213,5 +220,5 @@ apply inside PowerShell, not to VS Code or other apps.
 
 | Action               | Linux / WSL                   | Windows (`pwsh`)           |
 | :------------------- | :---------------------------- | :------------------------- |
-| Update to newest     | `git pull && python3 link.py` | `git pull; uv run link.py` |
-| Preview link changes | `python3 link.py --dry-run`   | `uv run link.py --dry-run` |
+| Update to newest     | `git pull && ahok link`       | `git pull; ahok link`      |
+| Preview link changes | `ahok link --dry-run`         | `ahok link --dry-run`      |
