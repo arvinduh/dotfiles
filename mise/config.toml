@@ -16,7 +16,7 @@ uv = "latest"
 # --- C toolchain for Rust's gnullvm target -------------------------------------
 "github:mstorsjo/llvm-mingw" = { version = "latest", asset_pattern = "llvm-mingw-*-ucrt-x86_64.zip" }
 
-# --- linters and formatters (used by format-file / stop-gate hooks) ----------
+# --- linters and formatters (run by fml and the editor) ----------------------
 golangci-lint = "latest"
 # aqua's checkstyle ships no Windows binary; take the jar (see windows/checkstyle.cmd).
 "github:checkstyle/checkstyle" = { version = "latest", asset_pattern = "checkstyle-*-all.jar" }
