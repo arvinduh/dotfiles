@@ -9,18 +9,7 @@
 #   cloud:   set to true to also link in Claude Code cloud sessions, at the
 #            linux target.
 
-# --- agents: one copy of directives and skills, linked into each tool ---------
-
-[[link]]
-source = "agents"
-home = "~/.agents"
-cloud = true
-
-
-
-
-
-
+# --- editor: VS Code and Antigravity share one settings file ------------------
 
 [[link]]
 source = "vscode/settings.json"
@@ -32,13 +21,7 @@ source = "vscode/settings.json"
 linux = "~/.config/Antigravity/User/settings.json"
 windows = "%APPDATA%/Antigravity/User/settings.json"
 
-# --- formatting and quality hooks ---------------------------------------------
-
-
-
-
-
-
+# --- formatter configs --------------------------------------------------------
 
 [[link]]
 source = "format/.editorconfig"
@@ -66,13 +49,11 @@ linux = "~/.config/rustfmt/rustfmt.toml"
 windows = "%APPDATA%/rustfmt/rustfmt.toml"
 cloud = true
 
-
 [[link]]
 source = "format/ruff.toml"
 linux = "~/.config/ruff/ruff.toml"
 windows = "%APPDATA%/ruff/ruff.toml"
 cloud = true
-
 
 [[link]]
 source = "format/.markdownlint-cli2.jsonc"
