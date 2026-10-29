@@ -17,3 +17,11 @@ doc-valid-idents = [
   "API",
   "URL",
 ]
+
+# Google Rust guide: `expect` over `unwrap`, except in tests.
+allow-unwrap-in-tests = true
+
+# Google Rust guide: never call `catch_unwind` in first-party code.
+disallowed-methods = [
+  { path = "std::panic::catch_unwind", reason = "Google Rust guide: panics abort; do not catch them" },
+]
