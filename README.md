@@ -1,8 +1,9 @@
 # dotfiles
 
 Personal config for **WSL2 / Linux** (zsh) and **native Windows** (PowerShell
-7), plus the agent setup shared by Claude Code and Antigravity. Editor: VS Code.
-Languages: Python, C/C++, Rust, and TOML / JSON / YAML / Markdown.
+7). Editor: VS Code. Languages: Python, C/C++, Rust, and TOML / JSON / YAML /
+Markdown. Agent config (directives, skills, hooks, rules) lives in
+[arvinduh/agents](https://github.com/arvinduh/agents), cloned to `~/.agents`.
 
 `link.py` symlinks everything into place on Linux, Windows, and Claude Code
 cloud sessions from one table. It only links: it never installs anything, and
@@ -12,11 +13,8 @@ moves any real file in the way to `<file>.bak-<timestamp>` first.
 
 ```text
 link.py      the link table and the script that applies it
-agents/      AGENTS.md and skills: the one copy, at ~/.agents
-claude/      Claude Code: CLAUDE.md (imports AGENTS.md), hooks
-gemini/      Antigravity hooks; its AGENTS.md and skills link to agents/
 vscode/      settings.json (VS Code and Antigravity) and extensions.txt
-format/      one global config per formatter, and format-file
+format/      one global config per formatter
 git/         git config and global ignore
 zsh/         zsh (conf.d/ modules, p10k prompt)
 atuin/ bat/  shell history sync; `cat` with syntax highlighting
@@ -137,29 +135,16 @@ Windows for the editor.
 
 ## Formatting
 
-VS Code formats on save. Agents get the same result through a post-edit hook:
-Claude Code (`claude/settings.json`) and Antigravity (`gemini/hooks.json`) both
-run `format-file` on every file an agent writes or edits. `format-file` picks
-the formatter by extension (rustfmt, ruff, clang-format, taplo, prettier, then
-markdownlint for Markdown), and every tool reads the global config linked from
-`format/`. A missing formatter leaves the file untouched.
+VS Code formats on save, and every formatter reads the global config linked
+from `format/`. Agent-side formatting hooks belong to arvinduh/agents.
 
 ## Claude Code cloud sessions
 
-This repository is public so cloud sessions can clone it without credentials.
-Each cloud environment's Setup script is:
-
-```bash
-git clone -q --depth 1 https://github.com/arvinduh/dotfiles ~/.dotfiles
-python3 ~/.dotfiles/link.py --platform cloud
-```
-
-`--platform cloud` links only the entries marked `cloud` in `link.py`: the agent
-directives and skills, Claude's settings, and the `format-file` and `stop-gate`
-hooks. Cloud is Linux, so an entry's `linux` target wins over `home`.
-
-A SessionStart hook in `claude/settings.json` pulls and relinks at the start of
-every cloud session; outside the cloud it does nothing.
+This repository is private, so a cloud environment's setup script needs
+credentials to clone it. After cloning, run
+`python3 ~/.dotfiles/link.py --platform cloud`, which links only the entries
+marked `cloud` in `links.toml`. Cloud is Linux, so an entry's `linux` target
+wins over `home`.
 
 ## Keeping ~ clean
 
