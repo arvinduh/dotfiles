@@ -32,6 +32,10 @@ source = "format/.clang-format"
 home = "~/.clang-format"
 
 [[link]]
+source = "format/.clang-tidy"
+home = "~/.clang-tidy"
+
+[[link]]
 source = "format/.prettierrc"
 home = "~/.prettierrc"
 
