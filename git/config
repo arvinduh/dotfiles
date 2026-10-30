@@ -14,6 +14,7 @@
   pager = delta
   autocrlf = input          # WSL: never write CRLF into the repo
   excludesfile = ~/.config/git/ignore
+  hooksPath = ~/.agents/git/hooks  # ahok's git rules, then the repo's own hooks
   fsmonitor = true
   untrackedCache = true
 
