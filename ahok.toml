@@ -1,0 +1,139 @@
+# Applied by `ahok setup ~/.dotfiles` (see arvinduh/ahok).
+#
+# Each [[link]] symlinks `from` (inside this repo) to `to`. A trailing `/*`
+# links each child into the target directory instead. `to` is one path, or
+# one per OS as { linux, windows }; cloud sessions use the linux target.
+# `on` limits the platforms (linux, windows, cloud); default: all three.
+
+# --- editor: VS Code and Antigravity share one settings file ------------------
+
+[[link]]
+from = "vscode/settings.json"
+to = { linux = "~/.config/Code/User/settings.json", windows = "%APPDATA%/Code/User/settings.json" }
+on = ["linux", "windows"]
+
+[[link]]
+from = "vscode/settings.json"
+to = { linux = "~/.config/Antigravity/User/settings.json", windows = "%APPDATA%/Antigravity/User/settings.json" }
+on = ["linux", "windows"]
+
+# --- formatter configs --------------------------------------------------------
+
+[[link]]
+from = "format/.editorconfig"
+to = "~/.editorconfig"
+on = ["linux", "windows"]
+
+[[link]]
+from = "format/.clang-format"
+to = "~/.clang-format"
+on = ["linux", "windows"]
+
+[[link]]
+from = "format/.clang-tidy"
+to = "~/.clang-tidy"
+on = ["linux", "windows"]
+
+[[link]]
+from = "format/.prettierrc"
+to = "~/.prettierrc"
+on = ["linux", "windows"]
+
+[[link]]
+from = "format/.taplo.toml"
+to = "~/.taplo.toml"
+on = ["linux", "windows"]
+
+[[link]]
+from = "format/.clippy.toml"
+to = "~/.clippy.toml"
+on = ["linux", "windows"]
+
+[[link]]
+from = "format/.shellcheckrc"
+to = "~/.shellcheckrc"
+on = ["linux", "windows"]
+
+[[link]]
+from = "format/rustfmt.toml"
+to = { linux = "~/.config/rustfmt/rustfmt.toml", windows = "%APPDATA%/rustfmt/rustfmt.toml" }
+
+[[link]]
+from = "format/ruff.toml"
+to = { linux = "~/.config/ruff/ruff.toml", windows = "%APPDATA%/ruff/ruff.toml" }
+
+[[link]]
+from = "format/.markdownlint-cli2.jsonc"
+to = "~/.config/markdownlint/.markdownlint-cli2.jsonc"
+on = ["linux", "windows"]
+
+# --- dev toolchains: mise owns every portable runtime and CLI -----------------
+
+[[link]]
+from = "mise/config.toml"
+to = "~/.config/mise/config.toml"
+on = ["linux", "windows"]
+
+[[link]]
+from = "windows/checkstyle.cmd"
+to = "~/.local/bin/checkstyle.cmd"
+on = ["windows"]
+
+# --- shell and git ------------------------------------------------------------
+
+[[link]]
+from = "zsh/.zshenv"
+to = "~/.zshenv"
+on = ["linux"]
+
+[[link]]
+from = "zsh"
+to = "~/.config/zsh"
+on = ["linux"]
+
+[[link]]
+from = "git"
+to = "~/.config/git"
+on = ["linux", "windows"]
+
+[[link]]
+from = "atuin"
+to = "~/.config/atuin"
+on = ["linux"]
+
+[[link]]
+from = "bat"
+to = "~/.config/bat"
+on = ["linux"]
+
+[[link]]
+from = "bat/config"
+to = "%APPDATA%/bat/config"
+on = ["windows"]
+
+[[link]]
+from = "windows/starship.toml"
+to = "~/.config/starship.toml"
+on = ["windows"]
+
+[[link]]
+from = "windows/profile.ps1"
+to = "%DOCUMENTS%/PowerShell/Microsoft.PowerShell_profile.ps1"
+on = ["windows"]
+
+[[link]]
+from = "windows/terminal.json"
+to = "%LOCALAPPDATA%/Packages/Microsoft.WindowsTerminal_8wekyb3d8bbwe/LocalState/settings.json"
+on = ["windows"]
+
+# --- OpenTabletDriver: tablet mapping + the custom Wacom CTH-460 definition ---
+
+[[link]]
+from = "windows/opentabletdriver/settings.json"
+to = "%LOCALAPPDATA%/OpenTabletDriver/settings.json"
+on = ["windows"]
+
+[[link]]
+from = "windows/opentabletdriver/CTH-460.json"
+to = "%LOCALAPPDATA%/OpenTabletDriver/Configurations/CTH-460.json"
+on = ["windows"]
